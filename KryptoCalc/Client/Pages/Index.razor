@@ -1,9 +1,64 @@
 ﻿@page "/"
+@using Calc;
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <input type="text" id="display" class="form-control" value="@currentCount" readonly>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("7"))">7</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("8"))">8</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("9"))">9</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("c"))">c</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("☒"))">☒</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("4"))">4</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("5"))">5</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("6"))">6</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("%"))">%</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("÷"))">÷</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("1"))">1</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("2"))">2</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("3"))">3</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("×"))">×</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("-"))">-</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("0"))">0</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("."))">.</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("+"))">+</button>
+            <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("="))">=</button>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+@code {
+    private string currentCount = "0";
+    private CalculatorCalc CalculatorCalc = new();
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+    private void OnButtonClick(string str)
+    {
+        currentCount = CalculatorCalc.Add(str);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+    }
+}
