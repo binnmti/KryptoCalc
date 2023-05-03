@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KryptoCalcTest", "CalcTest\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calc", "Calc\Calc.csproj", "{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebjobsUpdateSymbol", "WebjobsUpdateSymbol\WebjobsUpdateSymbol.csproj", "{207B48F6-B33B-449B-8C45-E8908024D639}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{207B48F6-B33B-449B-8C45-E8908024D639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{207B48F6-B33B-449B-8C45-E8908024D639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{207B48F6-B33B-449B-8C45-E8908024D639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{207B48F6-B33B-449B-8C45-E8908024D639}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
