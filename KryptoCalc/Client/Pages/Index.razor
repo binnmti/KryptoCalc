@@ -1,5 +1,7 @@
 ﻿@page "/"
 @using Calc;
+@using KryptoCalc.Shared;
+@inject HttpClient Http
 
 <PageTitle>Index</PageTitle>
 
@@ -57,8 +59,10 @@
         currentCount = CalculatorCalc.Add(str);
     }
 
-    //protected override async Task OnInitializedAsync()
-    //{
-    //    //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
-    //}
+    protected override async Task OnInitializedAsync()
+    {
+        var forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+
+        var a = await Http.GetFromJsonAsync<Coin[]>("Coins");
+    }
 }

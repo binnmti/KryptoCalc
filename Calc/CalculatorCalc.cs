@@ -18,7 +18,6 @@ public class CalculatorCalc
         if (string.Compare(str, "C", true) == 0)
         {
             StrList.Clear();
-            StrList.Add("0");
         }
         else
         {
