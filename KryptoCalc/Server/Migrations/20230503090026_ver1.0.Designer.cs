@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KryptoCalc.Server.Migrations
 {
     [DbContext(typeof(KryptoCalcServerContext))]
-    [Migration("20230503080229_ver1.0")]
+    [Migration("20230503090026_ver1.0")]
     partial class ver10
     {
         /// <inheritdoc />
@@ -37,7 +37,7 @@ namespace KryptoCalc.Server.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<string>("Symbol")
                         .IsRequired()

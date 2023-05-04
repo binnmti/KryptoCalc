@@ -1,0 +1,5 @@
+dotnet ef migrations remove --project Server
+dotnet ef migrations add ver1.0 --project Server
+dotnet ef migrations add AddCreateDate --project Server
+
+dotnet ef database update --project Server

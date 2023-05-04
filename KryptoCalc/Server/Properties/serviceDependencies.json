@@ -2,7 +2,8 @@
   "dependencies": {
     "mssql1": {
       "type": "mssql",
-      "connectionId": "ConnectionStrings:KryptoCalcServerContext"
+      "connectionId": "ConnectionStrings:KryptoCalcServerContext",
+      "dynamicId": null
     }
   }
 }
