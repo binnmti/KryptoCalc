@@ -72,10 +72,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var coins = await Http.GetFromJsonAsync<Coin[]>("home/krypto");
+        var coins = await Http.GetFromJsonAsync<CoinMarkets[]>("home/krypto");
         CoinIds.Add("yen");
         CoinIds.AddRange(coins.Select(x => x.Id));
-        SymbolItems = coins.ToDictionary(x => x.Id, x => x.Price);
+        SymbolItems = coins.ToDictionary(x => x.Id, x => (decimal)x.CurrentPrice);
     }
 
     void CoinSelectionChanged(ChangeEventArgs eventArgs)

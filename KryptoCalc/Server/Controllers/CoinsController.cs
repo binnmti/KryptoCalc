@@ -29,9 +29,9 @@ namespace KryptoCalc.Server.Controllers
         }
 
         [Route("/home/krypto")]
-        public IEnumerable<Coin> KryptoGet()
+        public IEnumerable<CoinMarkets> KryptoGet()
         {
-            return _context.Coin.Where(x => x.Id == "ethereum" || x.Id == "matic-network");
+            return _context.CoinMarkets.OrderByDescending(x => x.MarketCap).AsNoTracking();
         }
 
     }
