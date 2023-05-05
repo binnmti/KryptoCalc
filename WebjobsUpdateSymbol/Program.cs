@@ -15,44 +15,33 @@ var connectionString = Configuration["ConnectionStrings:KryptoCalcServerContext"
 
 using var httpClient = new HttpClient();
 using var sqlConnection = new SqlConnection(connectionString);
-var coinList = await CoinGeckoUtil.GetCoinList(httpClient);
+var coinList = await CoinGeckoUtil.GetCoinListAsync(httpClient);
 
 int co = 0;
-//foreach (var coin in coinList)
-//{
-//    coin.CreateTime = DateTime.Now;
-//    coin.UpdateTime = DateTime.Now;
-//    sqlConnection.Insert(coin, "Id", coin.Id);
+foreach (var coin in coinList)
+{
+    coin.CreateTime = DateTime.Now;
+    coin.UpdateTime = DateTime.Now;
+    sqlConnection.Insert(coin, "Id", coin.Id);
 
-//    Console.WriteLine($"{co}/{coinList.Count}:{coin.Id}");
-//    co++;
-//}
+    Console.WriteLine($"{co++}/{coinList.Count}:{coin.Id}");
+}
 
 int skip = 0;
 int take = 500;
+co = 0;
 while (true)
 {
-    coinList = coinList.Skip(skip).Take(take).ToList();
-    if (coinList.Count() == 0) break;
+    var rangeCoinList = coinList.Take(skip..take).ToList() ?? new List<Coin>();
+    if (!rangeCoinList.Any()) break;
 
-    var ids = string.Join("%2C", coinList.Select(x => x.Id));
-    var response = await httpClient.GetAsync($"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=jpy");
-    var content = await response.Content.ReadAsStringAsync() ?? "";
-    var lines = content.Substring(1).Split(",");
-    for (int i = 0; i < lines.Length; i++)
+    await CoinGeckoUtil.SetCoinListPriceAsync(httpClient, rangeCoinList);
+    foreach (var coin in rangeCoinList)
     {
-        var coin = coinList.ElementAt(i + skip);
-        var line = lines[i];
-        var coinName = line[1..(line.IndexOf(":")-1)];
-        if (coin.Id != coinName) throw new ApplicationException($"{coin.Id} != {coinName}");
-        if (!decimal.TryParse(line[(line.LastIndexOf(":") + 1)..^1], out var price)) continue;
-
-        coin.Price = price;
-        coin.CreateTime = DateTime.Now; //TODO:これはNG
         coin.UpdateTime = DateTime.Now;
         sqlConnection.Update(coin);
 
-        Console.WriteLine($"{coinName}:{coin.Price}");
+        Console.WriteLine($"{co++}/{coinList.Count}:{coin.Id}:{coin.Price}");
     }
     skip += take;
     Thread.Sleep(1000 * 60);
