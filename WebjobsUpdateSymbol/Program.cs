@@ -32,7 +32,8 @@ int take = 500;
 co = 0;
 while (true)
 {
-    var rangeCoinList = coinList.Take(skip..take).ToList() ?? new List<Coin>();
+    Thread.Sleep(1000 * 60);
+    var rangeCoinList = coinList.Skip(skip).Take(take).ToList() ?? new List<Coin>();
     if (!rangeCoinList.Any()) break;
 
     await CoinGeckoUtil.SetCoinListPriceAsync(httpClient, rangeCoinList);
@@ -44,5 +45,4 @@ while (true)
         Console.WriteLine($"{co++}/{coinList.Count}:{coin.Id}:{coin.Price}");
     }
     skip += take;
-    Thread.Sleep(1000 * 60);
 }

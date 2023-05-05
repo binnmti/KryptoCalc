@@ -13,7 +13,7 @@ public record Coin
     public required string Symbol { get; set; }
     [MaxLength(100)]
     public required string Name { get; set; }
-    [Column(TypeName = "decimal(18,4)")]
+    [Column(TypeName = "decimal(20,4)")]
     public decimal Price { get; set; }
     public DateTime CreateTime { get; set; }
     public DateTime UpdateTime { get; set; }
