@@ -1,5 +1,8 @@
 ﻿namespace Calc;
 
+//TODO:入力上限桁がいるかも*で上限簡単にこえるので。。。
+//TODO:1+*=はどうなるんだっけ？
+
 public class CalculatorCalc
 {
     private readonly List<string> StrList = new();
