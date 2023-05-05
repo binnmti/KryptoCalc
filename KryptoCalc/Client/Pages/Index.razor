@@ -10,14 +10,19 @@
         <div class="col-12">
             <input type="text" id="display" class="form-control" value="@currentCount" readonly>
         </div>
-        <select name="pets" id="pet-select" class="selectpicker" onchange="@CoinSelectionChanged">
-            @{
-                foreach (var coinMarket in CoinMarkets)
-                {
-                    <option data-thumbnail="@coinMarket.Image" value="@coinMarket.Id">@coinMarket.Id</option>
-                }
+        @{
+            if (CoinMarkets.Count != 0)
+            {
+                <select name="pets" id="pet-select" class="selectpicker" onchange="@CoinSelectionChanged">
+                    @{
+                        foreach (var coinMarket in CoinMarkets)
+                        {
+                            <option data-thumbnail="@coinMarket.Image" value="@coinMarket.Id">@coinMarket.Id</option>
+                        }
+                    }
+                </select>
             }
-        </select>
+        }
     </div>
     <div class="row">
         <div class="col">
@@ -63,7 +68,7 @@
     private CalculatorCalc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets = new();
     private Dictionary<string, decimal> SymbolItems = new();
-    private string preSelected = "yen";
+    private string preSelected;
 
     private void OnButtonClick(string str)
     {
@@ -73,8 +78,7 @@
     protected override async Task OnInitializedAsync()
     {
         CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto");
-        //CoinIds.Add("yen");
-        //CoinIds.AddRange(coins.Select(x => x.Id));
+        preSelected = CoinMarkets.First().Id;
         SymbolItems = CoinMarkets.ToDictionary(x => x.Id, x => (decimal)x.CurrentPrice);
     }
 
