@@ -1,9 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KryptoCalc.Shared;
 
 public record CoinMarkets
 {
+    [SetsRequiredMembers]
+    public CoinMarkets(string id, string symbol, string name, string image)
+    {
+        Id = id;
+        Symbol = symbol;
+        Name = name;
+        Image = image;
+    }
     [Key]
     [MaxLength(100)]
     public required string Id { get; set; }

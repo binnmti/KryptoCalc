@@ -31,7 +31,12 @@ namespace KryptoCalc.Server.Controllers
         [Route("/home/krypto")]
         public IEnumerable<CoinMarkets> KryptoGet()
         {
-            return _context.CoinMarkets.OrderByDescending(x => x.MarketCap).AsNoTracking();
+            var coinMarkets = new List<CoinMarkets>
+            {
+                new CoinMarkets("Yen","", "", ""),
+            };
+            coinMarkets.AddRange(_context.CoinMarkets.OrderByDescending(x => x.MarketCap).Take(20).AsNoTracking());
+            return coinMarkets;
         }
 
     }
