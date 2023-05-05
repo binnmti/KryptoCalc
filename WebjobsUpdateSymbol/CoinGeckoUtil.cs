@@ -8,9 +8,9 @@ namespace WebjobsUpdateSymbol
         private static readonly string GeckoUrl = "https://api.coingecko.com/api/v3";
         public class GeckoCoin
         {
-            public string id { get; set; }
-            public string symbol { get; set; }
-            public string name { get; set; }
+            public string id { get; set; } = "";
+            public string symbol { get; set; } = "";
+            public string name { get; set; } = "";
         }
 
         internal static async Task<List<Coin>> GetCoinListAsync(HttpClient httpClient)

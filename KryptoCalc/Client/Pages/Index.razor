@@ -62,8 +62,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
-
         var a = await Http.GetFromJsonAsync<Coin[]>("Coins");
     }
 }
