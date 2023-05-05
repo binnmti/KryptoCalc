@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KryptoCalc.Shared;
 
-
 public record Coin
 {
     [Key]
@@ -18,4 +17,3 @@ public record Coin
     public DateTime CreateTime { get; set; }
     public DateTime UpdateTime { get; set; }
 }
-

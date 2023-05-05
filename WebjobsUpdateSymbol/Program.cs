@@ -14,10 +14,21 @@ var Configuration = builder.Build();
 var connectionString = Configuration["ConnectionStrings:KryptoCalcServerContext"];
 
 using var httpClient = new HttpClient();
+httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36");
+
 using var sqlConnection = new SqlConnection(connectionString);
+
+//var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
+int co = 0;
+//foreach (var coinMarket in coinMarketList)
+//{
+//    sqlConnection.Insert(coinMarket, "Id", coinMarket.Id);
+
+//    Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
+//}
+
 var coinList = await CoinGeckoUtil.GetCoinListAsync(httpClient);
 
-int co = 0;
 foreach (var coin in coinList)
 {
     coin.CreateTime = DateTime.Now;
