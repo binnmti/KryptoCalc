@@ -35,7 +35,7 @@ namespace KryptoCalc.Server.Controllers
             {
                 new CoinMarkets("Yen","", "", ""),
             };
-            coinMarkets.AddRange(_context.CoinMarkets.OrderByDescending(x => x.MarketCap).Take(20).AsNoTracking());
+            coinMarkets.AddRange(_context.CoinMarkets.OrderByDescending(x => x.MarketCapRank).Take(20).AsNoTracking());
             return coinMarkets;
         }
 

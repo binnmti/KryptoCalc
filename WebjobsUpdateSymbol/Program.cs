@@ -1,5 +1,4 @@
-﻿using KryptoCalc.Shared;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using System.Text;
 using WebjobsUpdateSymbol;
@@ -18,42 +17,11 @@ httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.
 
 using var sqlConnection = new SqlConnection(connectionString);
 
-//var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
+var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
 int co = 0;
-//foreach (var coinMarket in coinMarketList)
-//{
-//    sqlConnection.Insert(coinMarket, "Id", coinMarket.Id);
-
-//    Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
-//}
-
-var coinList = await CoinGeckoUtil.GetCoinListAsync(httpClient);
-
-foreach (var coin in coinList)
+foreach (var coinMarket in coinMarketList)
 {
-    coin.CreateTime = DateTime.Now;
-    coin.UpdateTime = DateTime.Now;
-    sqlConnection.Insert(coin, "Id", coin.Id);
+    sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
 
-    Console.WriteLine($"{co++}/{coinList.Count}:{coin.Id}");
-}
-
-int skip = 0;
-int take = 500;
-co = 0;
-while (true)
-{
-    Thread.Sleep(1000 * 60);
-    var rangeCoinList = coinList.Skip(skip).Take(take).ToList() ?? new List<Coin>();
-    if (!rangeCoinList.Any()) break;
-
-    await CoinGeckoUtil.SetCoinListPriceAsync(httpClient, rangeCoinList);
-    foreach (var coin in rangeCoinList)
-    {
-        coin.UpdateTime = DateTime.Now;
-        sqlConnection.Update(coin);
-
-        Console.WriteLine($"{co++}/{coinList.Count}:{coin.Id}:{coin.Price}");
-    }
-    skip += take;
+    Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
 }

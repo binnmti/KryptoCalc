@@ -6,6 +6,17 @@ namespace WebjobsUpdateSymbol;
 
 public static class SqlConnectionExtention
 {
+
+    public static void InsertOrUpdate<T>(this SqlConnection sqlConnection, T data, string value)
+    {
+        if (data == null) return;
+
+        var single = sqlConnection.Query<T>($"select * from [{typeof(T).Name}] Where Id = '{value}'").SingleOrDefault();
+        var properties = data.GetType().GetProperties();
+        var (sql, param) = (single != null ? data.GetUpdateSql(properties) : data.GetInsertSql(properties), data.GetParam(properties));
+        sqlConnection.Execute(sql, param);
+    }
+
     public static void Insert<T>(this SqlConnection sqlConnection, T data, string selectName, string selectValue)
     {
         if (data == null) return;

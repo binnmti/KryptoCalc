@@ -5,6 +5,8 @@ namespace KryptoCalc.Shared;
 
 public record CoinMarkets
 {
+    public CoinMarkets() { }
+
     [SetsRequiredMembers]
     public CoinMarkets(string id, string symbol, string name, string image)
     {
