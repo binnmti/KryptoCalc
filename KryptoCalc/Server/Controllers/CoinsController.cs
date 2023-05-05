@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KryptoCalc.Server.Data;
 using KryptoCalc.Shared;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace KryptoCalc.Server.Controllers
 {
@@ -26,5 +27,12 @@ namespace KryptoCalc.Server.Controllers
         {
             return _context.Coin;
         }
+
+        [Route("/home/krypto")]
+        public IEnumerable<Coin> KryptoGet()
+        {
+            return _context.Coin.Where(x => x.Id == "ethereum" || x.Id == "matic-network");
+        }
+
     }
 }

@@ -10,6 +10,14 @@
         <div class="col-12">
             <input type="text" id="display" class="form-control" value="@currentCount" readonly>
         </div>
+        <select name="pets" id="pet-select" onchange="@CoinSelectionChanged">
+            @{
+                foreach (var coin in CoinIds)
+                {
+                    <option value="@coin">@coin</option>
+                }
+            }
+        </select>
     </div>
     <div class="row">
         <div class="col">
@@ -53,7 +61,9 @@
     //TODO:キーボード対応
     private string currentCount = "0";
     private CalculatorCalc CalculatorCalc = new();
-
+    private List<string> CoinIds = new();
+    private Dictionary<string, decimal> SymbolItems = new();
+    private string preSelected = "yen";
 
     private void OnButtonClick(string str)
     {
@@ -62,6 +72,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var a = await Http.GetFromJsonAsync<Coin[]>("Coins");
+        var coins = await Http.GetFromJsonAsync<Coin[]>("home/krypto");
+        CoinIds.Add("yen");
+        CoinIds.AddRange(coins.Select(x => x.Id));
+        SymbolItems = coins.ToDictionary(x => x.Id, x => x.Price);
+    }
+
+    void CoinSelectionChanged(ChangeEventArgs eventArgs)
+    {
+        var nowSelectd = eventArgs.Value.ToString();
+
+        decimal.TryParse(currentCount, out var result);
+        currentCount = SymbolItems.Convert(preSelected, nowSelectd, result).ToString();
+        preSelected = nowSelectd;
     }
 }
