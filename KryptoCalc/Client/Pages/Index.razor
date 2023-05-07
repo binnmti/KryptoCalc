@@ -1,13 +1,13 @@
 ﻿@page "/"
 @using Calc;
 @using KryptoCalc.Shared;
-@inject HttpClient Http
-@implements IDisposable
 @using Toolbelt.Blazor.HotKeys2
+@implements IDisposable
+@inject HttpClient Http
 @inject HotKeys HotKeys
+@inject IJSRuntime JS
 
 <PageTitle>Index</PageTitle>
-
 <div class="container">
     <div class="row">
         <div class="col">
@@ -27,6 +27,13 @@
                             }
                         }
                     </select>
+                    <i class="far fa-question-circle" data-bs-toggle="popover" data-bs-content="毎日0:00に更新します"></i>
+                }
+                else
+                {
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 }
             }
         </div>
@@ -58,6 +65,8 @@
     </div>
 </div>
 
+
+
 @code {
     //TODO:キーボード対応
     private string _currentNumber = "0";
@@ -78,7 +87,13 @@
         StateHasChanged();
     }
 
-        /*
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        await JS.InvokeVoidAsync("blazorInit");
+    }
+
+    /*
         <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
     */
     private void OnButtonClick0() => OnButtonClick("0");
@@ -136,3 +151,5 @@
         _preSymbol = nowSymbol;
     }
 }
+
+
