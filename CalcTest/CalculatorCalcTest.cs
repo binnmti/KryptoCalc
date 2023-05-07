@@ -1,9 +1,10 @@
-namespace Calc;
+Ôªønamespace Calc;
 
 [TestClass]
 public class CalculatorCalcTest
 {
     [TestMethod]
+    [DataRow(new[] { "1", "0", "‚òí", }, 1)]
     [DataRow(new[] { "3", "+", "=", }, 6)]
     [DataRow(new[] { "1", "2", "+", "1", "2", "=", "1", "2", }, 12)]
     [DataRow(new[] { "1", "2", "3" }, 123)]
@@ -11,8 +12,8 @@ public class CalculatorCalcTest
     [DataRow(new[] { "1", "2", "+", "2", "1", "+" }, 33)]
     [DataRow(new[] { "1", "+", "2", "=" }, 3)]
     [DataRow(new[] { "1", "-", "2", "=" }, -1)]
-    [DataRow(new[] { "2", "Å~", "3", "=" }, 6)]
-    [DataRow(new[] { "6", "ÅÄ", "2", "=" }, 3)]
+    [DataRow(new[] { "2", "√ó", "3", "=" }, 6)]
+    [DataRow(new[] { "6", "√∑", "2", "=" }, 3)]
     [DataRow(new[] { "1", "2", "+", "2", "1" }, 21)]
     public void TestAdd(string[] input, double expected)
     {

@@ -22,6 +22,17 @@ public class CalculatorCalc
         {
             StrList.Clear();
         }
+        else if (string.Compare(str, "☒", true) == 0)
+        {
+            if (StrList.Count != 0)
+            {
+                StrList.RemoveAt(StrList.Count - 1);
+            }
+            else
+            {
+                return CurrentNumber.ToString();
+            }
+        }
         else
         {
             StrList.Add(str);
@@ -68,7 +79,6 @@ public class CalculatorCalc
                 "-" => result - num,
                 "×" => result * num,
                 "÷" => result / num,
-                "%" => result % num,
                 _ => result + num,
             };
             preSymbol = symbol;

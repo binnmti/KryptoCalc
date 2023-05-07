@@ -7,24 +7,54 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-12">
-            <input type="text" id="display" class="form-control" value="@currentCount" readonly>
+        <div class="col">
+            <input type="text" id="display" class="textbox form-control" value="@currentCount" readonly>
         </div>
-        @{
-            if (CoinMarkets.Count != 0)
-            {
-                <select name="pets" id="pet-select" class="selectpicker" onchange="@CoinSelectionChanged">
-                    @{
-                        foreach (var coinMarket in CoinMarkets)
-                        {
-                            <option data-thumbnail="@coinMarket.Image" value="@coinMarket.Id">@coinMarket.Id</option>
-                        }
-                    }
-                </select>
-            }
-        }
     </div>
     <div class="row">
+        <div class="col text-end">
+            @{
+                if (CoinMarkets.Count != 0)
+                {
+                    <select name="pets" id="pet-select" class="selectpicker" onchange="@CoinSelectionChanged">
+                        @{
+                            foreach (var coinMarket in CoinMarkets)
+                            {
+                                <option data-thumbnail="@coinMarket.Image" value="@coinMarket.Id">@coinMarket.Id</option>
+                            }
+                        }
+                    </select>
+                }
+            }
+        </div>
+    </div>
+    <div class="grid">
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("7"))">7</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("8"))">8</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("9"))">9</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("c"))">c</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("☒"))">☒</button>
+
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("4"))">4</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("5"))">5</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("6"))">6</button>
+        <button class="p-1 btn btn-secondary"></button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("÷"))">÷</button>
+
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("1"))">1</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("2"))">2</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("3"))">3</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("×"))">×</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("-"))">-</button>
+
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("0"))">0</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("."))">.</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("+"))">+</button>
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("="))">=</button>
+    </div>
+
+@*    <div class="row">
         <div class="col">
             <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("7"))">7</button>
             <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("8"))">8</button>
@@ -60,6 +90,7 @@
             <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("="))">=</button>
         </div>
     </div>
+    *@
 </div>
 
 @code {

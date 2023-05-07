@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KryptoCalc.Server.Data;
 using KryptoCalc.Shared;
-using Microsoft.AspNetCore.HttpOverrides;
 
 namespace KryptoCalc.Server.Controllers
 {
@@ -33,7 +27,7 @@ namespace KryptoCalc.Server.Controllers
         {
             var coinMarkets = new List<CoinMarkets>
             {
-                new CoinMarkets("Yen","", "", ""),
+                new CoinMarkets("yen","", "", ""),
             };
             coinMarkets.AddRange(_context.CoinMarkets.OrderBy(x => x.MarketCapRank).Take(20).AsNoTracking());
             return coinMarkets;
