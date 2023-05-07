@@ -1,4 +1,6 @@
-﻿namespace Calc;
+﻿using System.Diagnostics;
+
+namespace Calc;
 
 //TODO:入力上限桁がいるかも*で上限簡単にこえるので。。。
 //TODO:1+*=はどうなるんだっけ？
@@ -61,7 +63,7 @@ public class CalculatorCalc
                 //演算子の前に入力された数字
                 if (process != "")
                 {
-                    numberPreOperator = decimal.Parse(process);
+                    numberPreOperator = ToNumber(process);
                 }
                 calcItem.Add(Tuple.Create(numberPreOperator, ope));
                 process = "";
@@ -70,8 +72,14 @@ public class CalculatorCalc
             process += str;
         }
         //processが""なら演算子なので計算結果、そうでなければ数字を返す
-        return process == "" ? Calculator(calcItem) : decimal.Parse(process);
+        return process == "" ? Calculator(calcItem) : ToNumber(process);
     }
+
+    private static decimal ToNumber(string process)
+        => decimal.Parse(process.Replace("±", "")) * PlusMinus(process, '±');
+
+    public static int PlusMinus(string s, char c)
+        => (s.Length - s.Replace(c.ToString(), "").Length) % 2 == 0 ? 1 : -1;
 
     private static decimal Calculator(List<Tuple<decimal, string>> calcItem)
     {
