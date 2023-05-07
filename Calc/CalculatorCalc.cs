@@ -11,8 +11,10 @@ public class CalculatorCalc
 
     public string Add(string str)
     {
-        if (StrList.Count == 0 && IsCalc(str))
+        //未入力か確定の状態で演算子
+        if (StrList.Count == 0 && IsOperator(str))
         {
+            //現在の数字をそのまま使用
             foreach (var n in CurrentNumber.ToString())
             {
                 StrList.Add(n.ToString());
@@ -37,7 +39,8 @@ public class CalculatorCalc
         {
             StrList.Add(str);
         }
-        CurrentNumber = ToDecimal(StrList);
+
+        CurrentNumber = ToNumber(StrList);
         if(str == "=")
         {
             StrList.Clear();
@@ -45,35 +48,38 @@ public class CalculatorCalc
         return CurrentNumber.ToString();
     }
 
-    private static decimal ToDecimal(IEnumerable<string> strList)
+    private static decimal ToNumber(IEnumerable<string> strList)
     {
         var calcItem = new List<Tuple<decimal, string>>();
-        var result = "";
-        var preNum = 0m;
+        var process = "";
+        var numberPreOperator = 0m;
         foreach (var str in strList)
         {
-            if (IsCalc(str))
+            if (IsOperator(str))
             {
-                if (result != "")
+                var ope = str;
+                //演算子の前に入力された数字
+                if (process != "")
                 {
-                    preNum = decimal.Parse(result);
+                    numberPreOperator = decimal.Parse(process);
                 }
-                calcItem.Add(Tuple.Create(preNum, str));
-                result = "";
+                calcItem.Add(Tuple.Create(numberPreOperator, ope));
+                process = "";
                 continue;
             }
-            result += str;
+            process += str;
         }
-        return result == "" ? ToDecimal(calcItem) : decimal.Parse(result);
+        //processが""なら演算子なので計算結果、そうでなければ数字を返す
+        return process == "" ? Calculator(calcItem) : decimal.Parse(process);
     }
 
-    private static decimal ToDecimal(List<Tuple<decimal, string>> calcItem)
+    private static decimal Calculator(List<Tuple<decimal, string>> calcItem)
     {
-        string preSymbol = "";
+        string preOpe = "";
         decimal result = 0;
-        foreach (var (num, symbol) in calcItem)
+        foreach (var (num, ope) in calcItem)
         {
-            result = preSymbol switch
+            result = preOpe switch
             {
                 "+" => result + num,
                 "-" => result - num,
@@ -81,11 +87,11 @@ public class CalculatorCalc
                 "÷" => result / num,
                 _ => result + num,
             };
-            preSymbol = symbol;
+            preOpe = ope;
         }
         return result;
     }
 
-    private static bool IsCalc(string str)
+    private static bool IsOperator(string str)
         => str == "+" || str == "-" || str == "÷" || str == "×" || str == "=";
 }
