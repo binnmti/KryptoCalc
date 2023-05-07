@@ -7,11 +7,11 @@
       "library": "bootstrap@5.2.3",
       "destination": "wwwroot/bootstrap/"
     }
-  ,
+,
 {
   "provider": "cdnjs",
-  "library": "popper.js@2.11.7",
-  "destination": "wwwroot/popper.js/"
+  "library": "font-awesome@6.4.0",
+  "destination": "wwwroot/font-awesome/"
 }
 ]
 }
