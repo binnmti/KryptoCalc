@@ -4,6 +4,10 @@
 public class CalculatorCalcTest
 {
     [TestMethod]
+    [DataRow(new[] { "1", "+", "×", "2", "=", "±" }, -2)]
+    [DataRow(new[] { "1", "+", "×", "2", "=" }, 2)]
+    [DataRow(new[] { "1", "+", "+", "2", "=" }, 3)]
+    [DataRow(new[] { "1", "+", "+", "2", "=", "=" }, 3)]
     [DataRow(new[] { "1", "0", "±", }, -10)]
     [DataRow(new[] { "1", "0", "±", "+", "2", "=", }, -8)]
     [DataRow(new[] { "1", "0", "±", "±", "+", "2", "=", }, 12)]

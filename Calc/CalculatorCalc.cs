@@ -14,12 +14,24 @@ public class CalculatorCalc
     public string Add(string str)
     {
         //未入力か確定の状態で演算子
-        if (StrList.Count == 0 && IsOperator(str))
+        if (StrList.Count == 0)
         {
-            //現在の数字をそのまま使用
-            foreach (var n in CurrentNumber.ToString())
+            if (IsOperator(str) || str == "±")
             {
-                StrList.Add(n.ToString());
+                //現在の数字をそのまま使用
+                foreach (var n in CurrentNumber.ToString())
+                {
+                    StrList.Add(n.ToString());
+                }
+            }
+        }
+        //連続演算子
+        if (StrList.Count > 1 && IsOperator(StrList[^1]) && IsOperator(str))
+        {
+            //3+=は有効
+            if (str != "=")
+            {
+                StrList.RemoveAt(StrList.Count - 1);
             }
         }
         if (string.Compare(str, "C", true) == 0)
