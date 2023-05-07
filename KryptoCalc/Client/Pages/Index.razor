@@ -2,6 +2,9 @@
 @using Calc;
 @using KryptoCalc.Shared;
 @inject HttpClient Http
+@implements IDisposable
+@using Toolbelt.Blazor.HotKeys2
+@inject HotKeys HotKeys
 
 <PageTitle>Index</PageTitle>
 
@@ -62,17 +65,66 @@
     private CalculatorCalc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets = new();
     private Dictionary<string, decimal> SymbolItems = new();
+    private HotKeysContext HotKeysContext;
+
+    public void Dispose()
+    {
+        HotKeysContext.Dispose();
+    }
 
     private void OnButtonClick(string str)
     {
         _currentNumber = CalculatorCalc.Add(str);
+        StateHasChanged();
     }
+
+        /*
+        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
+    */
+    private void OnButtonClick0() => OnButtonClick("0");
+    private void OnButtonClick1() => OnButtonClick("1");
+    private void OnButtonClick2() => OnButtonClick("2");
+    private void OnButtonClick3() => OnButtonClick("3");
+    private void OnButtonClick4() => OnButtonClick("4");
+    private void OnButtonClick5() => OnButtonClick("5");
+    private void OnButtonClick6() => OnButtonClick("6");
+    private void OnButtonClick7() => OnButtonClick("7");
+    private void OnButtonClick8() => OnButtonClick("8");
+    private void OnButtonClick9() => OnButtonClick("9");
+    private void OnButtonClickC() => OnButtonClick("c");
+    private void OnButtonClickX() => OnButtonClick("☒");
+    private void OnButtonClickDiv() => OnButtonClick("÷");
+    private void OnButtonClickMul() => OnButtonClick("×");
+    private void OnButtonClickAdd() => OnButtonClick("+");
+    private void OnButtonClickSub() => OnButtonClick("-");
+    private void OnButtonClickEqual() => OnButtonClick("=");
+    private void OnButtonClickDot() => OnButtonClick(".");
 
     protected override async Task OnInitializedAsync()
     {
         CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto") ?? new List<CoinMarkets>();
         _preSymbol = CoinMarkets.First().Id;
         SymbolItems = CoinMarkets.ToDictionary(x => x.Id, x => (decimal)x.CurrentPrice);
+
+        HotKeysContext = HotKeys.CreateContext()
+        .Add(Key.Num0, OnButtonClick0)
+        .Add(Key.Num1, OnButtonClick1)
+        .Add(Key.Num2, OnButtonClick2)
+        .Add(Key.Num3, OnButtonClick3)
+        .Add(Key.Num4, OnButtonClick4)
+        .Add(Key.Num5, OnButtonClick5)
+        .Add(Key.Num6, OnButtonClick6)
+        .Add(Key.Num7, OnButtonClick7)
+        .Add(Key.Num8, OnButtonClick8)
+        .Add(Key.Num9, OnButtonClick9)
+        .Add(Key.C, OnButtonClickC)
+        .Add(Key.Plus, OnButtonClickAdd)
+        .Add(Key.Minus, OnButtonClickSub)
+        .Add(Key.Asterisk, OnButtonClickMul)
+        .Add(Key.Slash, OnButtonClickDiv)
+        .Add(Key.Equal, OnButtonClickEqual)
+        .Add(Key.Period, OnButtonClickDot)
+        .Add(Key.Delete, OnButtonClickX);
     }
 
     void CoinSelectionChanged(ChangeEventArgs eventArgs)
