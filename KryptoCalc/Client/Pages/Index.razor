@@ -8,7 +8,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <input type="text" id="display" class="textbox form-control" value="@currentCount" readonly>
+            <input type="text" id="display" class="textbox form-control" value="@_currentNumber" readonly>
         </div>
     </div>
     <div class="row">
@@ -57,30 +57,30 @@
 
 @code {
     //TODO:キーボード対応
-    private string currentCount = "0";
+    private string _currentNumber = "0";
+    private string _preSymbol = "";
     private CalculatorCalc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets = new();
     private Dictionary<string, decimal> SymbolItems = new();
-    private string preSelected;
 
     private void OnButtonClick(string str)
     {
-        currentCount = CalculatorCalc.Add(str);
+        _currentNumber = CalculatorCalc.Add(str);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto");
-        preSelected = CoinMarkets.First().Id;
+        CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto") ?? new List<CoinMarkets>();
+        _preSymbol = CoinMarkets.First().Id;
         SymbolItems = CoinMarkets.ToDictionary(x => x.Id, x => (decimal)x.CurrentPrice);
     }
 
     void CoinSelectionChanged(ChangeEventArgs eventArgs)
     {
-        var nowSelectd = eventArgs.Value.ToString();
+        var nowSymbol = eventArgs?.Value?.ToString() ?? "";
 
-        decimal.TryParse(currentCount.ToString(), out var result);
-        currentCount = SymbolItems.Convert(preSelected, nowSelectd, result).ToString();
-        preSelected = nowSelectd;
+        decimal.TryParse(_currentNumber.ToString(), out var price);
+        _currentNumber = SymbolItems.Convert(_preSymbol, nowSymbol, price).ToString();
+        _preSymbol = nowSymbol;
     }
 }
