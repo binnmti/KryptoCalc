@@ -19,6 +19,8 @@
             @{
                 if (CoinMarketView.Count != 0)
                 {
+                    <img src="@CoinMarketView.Single(x => x.Id == _preSymbol).Image" class="img-thumbnail" alt="">
+
                     <select name="pets" id="pet-select" class="selectpicker" @onchange="@CoinSelectionChanged">
                         @{
                             foreach (var coinMarketView in CoinMarketView)
@@ -86,7 +88,6 @@
 
 
 @code {
-    //TODO:キーボード対応
     private string _currentNumber = "0";
     private string _preSymbol = "";
     private CalculatorCalc CalculatorCalc = new();
