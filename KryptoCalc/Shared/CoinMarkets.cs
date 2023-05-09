@@ -8,12 +8,13 @@ public record CoinMarkets
     public CoinMarkets() { }
 
     [SetsRequiredMembers]
-    public CoinMarkets(string id, string symbol, string name, string image)
+    public CoinMarkets(string id, string symbol, string name, string image, float currentPrice)
     {
         Id = id;
         Symbol = symbol;
         Name = name;
         Image = image;
+        CurrentPrice = currentPrice;
     }
     [Key]
     [MaxLength(100)]

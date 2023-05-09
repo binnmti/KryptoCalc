@@ -5,7 +5,10 @@
     gap: 10px;
 }
 
-
+.img-thumbnail {
+    width: 32px;
+    height: 32px;
+}
 
 @media (min-width: 768px) {
     .btn {

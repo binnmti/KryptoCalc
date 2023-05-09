@@ -27,11 +27,10 @@ namespace KryptoCalc.Server.Controllers
         {
             var coinMarkets = new List<CoinMarkets>
             {
-                new CoinMarkets("yen","", "", ""),
+                new CoinMarkets("yen","yen", "Japan", "Japan.png", 1),
             };
             coinMarkets.AddRange(_context.CoinMarkets.OrderBy(x => x.MarketCapRank).Take(20).AsNoTracking());
             return coinMarkets;
         }
-
     }
 }
