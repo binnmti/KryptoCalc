@@ -6,7 +6,12 @@ public static class CoinMarketConvert
     {
         var newPrice = (decimal)coinMarkets.Single(x => x.Id == newSymbol).CurrentPrice;
         return coinMarkets
-            .Select(x => new CoinMarketView(x.Id, x.Name, x.Symbol, x.Image, GetCoinPrice(price, newSymbol, newPrice, x.Id, (decimal)x.CurrentPrice)));
+            .Select(x => new CoinMarketView(
+                x.Id,
+                x.Name,
+                x.Symbol,
+                x.Image,
+                GetCoinPrice(price, newSymbol, newPrice, x.Id, (decimal)x.CurrentPrice)));
     }
 
     private static decimal GetCoinPrice(decimal price, string newSymbol, decimal newPrice, string currentSymbol, decimal currentPrice)

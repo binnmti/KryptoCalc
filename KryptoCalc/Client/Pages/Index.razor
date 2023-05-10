@@ -10,82 +10,87 @@
 <PageTitle>Index</PageTitle>
 <div class="container">
     <div class="row">
-        <div class="col">
-            <input type="text" id="display" class="textbox form-control" value="@_currentNumber" readonly>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col text-end">
-            @{
-                if (CoinMarketView.Count != 0)
-                {
-                    <img src="@CoinMarketView.Single(x => x.Id == _preSymbol).Image" class="img-thumbnail" alt="">
+        <div class="col-12 col-sm-9">
+            <div class="row">
+                <div class="col">
+                    <input type="text" id="display" class="textbox form-control" value="@_currentNumber" readonly>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-end">
+                    @{
+                        if (CoinMarketView.Count != 0)
+                        {
+                            <img src="@CoinMarketView.Single(x => x.Id == _preSymbol).Image" class="img-thumbnail" alt="">
 
-                    <select name="pets" id="pet-select" class="selectpicker" @onchange="@CoinSelectionChanged">
-                        @{
-                            foreach (var coinMarketView in CoinMarketView)
-                            {
-                                <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id">@coinMarketView.Name</option>
-                            }
+                            <select name="pets" id="pet-select" class="selectpicker" @onchange="@CoinSelectionChanged">
+                                @{
+                                    foreach (var coinMarketView in CoinMarketView)
+                                    {
+                                        <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id">@coinMarketView.Name</option>
+                                    }
+                                }
+                            </select>
+                            <i class="fa-regular fa-circle-question" data-bs-toggle="popover" data-bs-content="毎日0:00に更新します"></i>
                         }
-                    </select>
-                    <i class="fa-regular fa-circle-question" data-bs-toggle="popover" data-bs-content="毎日0:00に更新します"></i>
-                }
-                else
-                {
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        else
+                        {
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="grid">
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("7"))">7</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("8"))">8</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("9"))">9</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("c"))">c</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("☒"))">☒</button>
+
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("4"))">4</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("5"))">5</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("6"))">6</button>
+                        <button class="p-1 btn btn-secondary"></button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("÷"))">÷</button>
+
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("1"))">1</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("2"))">2</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("3"))">3</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("×"))">×</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("-"))">-</button>
+
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("0"))">0</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("."))">.</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("+"))">+</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("="))">=</button>
                     </div>
-                }
-            }
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-9">
-            <div class="grid">
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("7"))">7</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("8"))">8</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("9"))">9</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("c"))">c</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("☒"))">☒</button>
-
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("4"))">4</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("5"))">5</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("6"))">6</button>
-                <button class="p-1 btn btn-secondary"></button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("÷"))">÷</button>
-
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("1"))">1</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("2"))">2</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("3"))">3</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("×"))">×</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("-"))">-</button>
-
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("0"))">0</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("."))">.</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("+"))">+</button>
-                <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("="))">=</button>
+                </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="d-none d-sm-block col-sm-3">
             <ul class="list-group">
-            @{
-                foreach (var coinMarketView in CoinMarketView)
-                {
-                    <li class="list-group-item">
-                        <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                        @coinMarketView.Price @coinMarketView.Symbol
-                    </li>
+                @{
+                    foreach (var coinMarketView in CoinMarketView)
+                    {
+                        var active = coinMarketView.Id == _preSymbol ? "active" : "";
+                        <li class="list-group-item text-truncate @active">
+                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                            @coinMarketView.Price @coinMarketView.Symbol
+                        </li>
+                    }
                 }
-            }
             </ul>
+            <div class="container d-flex justify-content-end">
+                Powered by <a href="https://www.coingecko.com/" rel="noopener" target="_blank">CoinGecko</a>
+            </div>
         </div>
     </div>
-
 </div>
-
-
 
 @code {
     private string _currentNumber = "0";
