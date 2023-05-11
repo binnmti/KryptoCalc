@@ -72,21 +72,33 @@
                 </div>
             </div>
         </div>
-        <div class="d-none d-sm-block col-sm-3">
-            <ul class="list-group">
-                @{
-                    foreach (var coinMarketView in CoinMarketView)
-                    {
-                        var active = coinMarketView.Id == _preSymbol ? "active" : "";
-                        <li class="list-group-item text-truncate @active">
-                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                            @coinMarketView.Price @coinMarketView.Symbol
-                        </li>
-                    }
-                }
-            </ul>
-            <div class="container d-flex justify-content-end">
-                Powered by <a href="https://www.coingecko.com/" rel="noopener" target="_blank">CoinGecko</a>
+        <div class="col-sm-3 navbar navbar-expand-sm">
+            <div class="">
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+                    <div class="offcanvas-header">
+                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <ul class="list-group">
+                            @{
+                                foreach (var coinMarketView in CoinMarketView)
+                                {
+                                    var active = coinMarketView.Id == _preSymbol ? "active" : "";
+                                    <li class="list-group-item text-truncate @active">
+                                        <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                        @coinMarketView.Price @coinMarketView.Symbol
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class=" d-flex justify-content-end">
+                        Powered by <a href="https://www.coingecko.com/" rel="noopener" target="_blank">CoinGecko</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

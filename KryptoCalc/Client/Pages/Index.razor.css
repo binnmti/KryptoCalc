@@ -5,6 +5,17 @@
     gap: 10px;
 }
 
+.list-group-item {
+    max-width: 100%;
+    min-width: 300px;
+}
+
+.img-thumbnail {
+    width: 32px;
+    height: 32px;
+}
+
+
 @media (min-width: 992px) {
     .btn {
         max-width: 100%;
@@ -17,11 +28,6 @@
         max-width: 100%;
         font-size: 100px;
         text-align: right;
-    }
-
-    .img-thumbnail {
-        width: 32px;
-        height: 32px;
     }
 }
 
@@ -39,9 +45,5 @@
         text-align: right;
     }
 
-    .img-thumbnail {
-        width: 16px;
-        height: 16px;
-    }
 }
 
