@@ -6,7 +6,7 @@
 @inject HttpClient Http
 @inject HotKeys HotKeys
 @inject IJSRuntime JS
-
+@inject ICookie cookie
 <PageTitle>Index</PageTitle>
 <div class="container">
     <div class="row">
@@ -27,7 +27,7 @@
                                 @{
                                     foreach (var coinMarketView in CoinMarketView)
                                     {
-                                        <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id">@coinMarketView.Name</option>
+                                        <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id" selected="@(coinMarketView.Id ==_preSymbol)">@coinMarketView.Name</option>
                                     }
                                 }
                             </select>
@@ -125,13 +125,14 @@
         StateHasChanged();
     }
 
-    void CoinSelectionChanged(ChangeEventArgs eventArgs)
+    private async void CoinSelectionChanged(ChangeEventArgs eventArgs)
     {
         var nowSymbol = eventArgs?.Value?.ToString() ?? "";
 
         decimal.TryParse(_currentNumber.ToString(), out var price);
         _currentNumber = CoinMarketView.Single(x => x.Id == nowSymbol).Price.ToString();
         _preSymbol = nowSymbol;
+        await cookie.SetValue("symbol", _preSymbol);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -143,7 +144,9 @@
     protected override async Task OnInitializedAsync()
     {
         CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto") ?? new List<CoinMarkets>();
-        _preSymbol = CoinMarkets.First().Id;
+        _preSymbol = await cookie.GetValue("symbol");
+        //TODO:直値
+        if (_preSymbol == "") _preSymbol = "yen";
         CoinMarketView = CoinMarkets.ToCoinMarketView(_preSymbol, 0).ToList();
 
         HotKeysContext = HotKeys.CreateContext()
