@@ -1,12 +1,14 @@
 ﻿@page "/"
 @using Calc;
 @using KryptoCalc.Shared;
+@using KryptoCalc.Client.Select;
 @using Toolbelt.Blazor.HotKeys2
 @implements IDisposable
 @inject HttpClient Http
 @inject HotKeys HotKeys
 @inject IJSRuntime JS
 @inject ICookie cookie
+
 <PageTitle>Index</PageTitle>
 <div class="container">
     <div class="row">
@@ -73,33 +75,50 @@
             </div>
         </div>
         <div class="col-sm-3 navbar navbar-expand-sm">
-            <div class="">
-                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
-                    <div class="offcanvas-header">
-                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                    </div>
-                    <div class="offcanvas-body">
-                        <ul class="list-group">
-                            @{
-                                foreach (var coinMarketView in CoinMarketView)
+            @{
+                if (CoinMarketView.Any())
+                {
+                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+                        <div class="offcanvas-header">
+                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div>
+                            <select name="" id="" class="">
+                                @foreach (var name in DisplayNumber.Name)
                                 {
-                                    var active = coinMarketView.Id == _preSymbol ? "active" : "";
-                                    <li class="list-group-item text-truncate @active">
-                                        <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                                        @coinMarketView.Price @coinMarketView.Symbol
-                                    </li>
+                                    <option data-value="@name" selected="">@name</option>
                                 }
-                            }
-                        </ul>
+                            </select>
+                        </div>
+                        <div class="offcanvas-body">
+                            <ul class="list-group">
+                                @{
+                                    foreach (var coinMarketView in CoinMarketView)
+                                    {
+                                        var active = coinMarketView.Id == _preSymbol ? "active" : "";
+                                        <li class="list-group-item text-truncate @active">
+                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                            @coinMarketView.Price @coinMarketView.Symbol
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                        <div class=" d-flex justify-content-end">
+                            Powered by <a href="https://www.coingecko.com/" rel="noopener" target="_blank">CoinGecko</a>
+                        </div>
                     </div>
-                    <div class=" d-flex justify-content-end">
-                        Powered by <a href="https://www.coingecko.com/" rel="noopener" target="_blank">CoinGecko</a>
+                }
+                else
+                {
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                </div>
-            </div>
+                }
+            }
         </div>
     </div>
 </div>
@@ -110,7 +129,7 @@
     private CalculatorCalc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets = new();
     private List<CoinMarketView> CoinMarketView = new();
-    private HotKeysContext HotKeysContext;
+    private HotKeysContext HotKeysContext = default!;
 
     public void Dispose()
     {
