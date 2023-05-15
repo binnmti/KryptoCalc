@@ -29,6 +29,13 @@
         font-size: 100px;
         text-align: right;
     }
+
+    .subTextbox {
+        max-width: 100%;
+        font-size: 25px;
+        text-align: right;
+        color: dimgray;
+    }
 }
 
 @media screen and (max-width: 992px) {
@@ -41,9 +48,15 @@
 
     .textbox {
         max-width: 100%;
-        font-size: 50px;
+        font-size: 25px;
         text-align: right;
     }
 
+    .subTextbox {
+        max-width: 100%;
+        font-size: 12px;
+        text-align: right;
+        color: dimgray;
+    }
 }
 

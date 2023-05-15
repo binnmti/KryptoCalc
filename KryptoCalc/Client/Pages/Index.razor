@@ -15,6 +15,11 @@
         <div class="col-12 col-sm-9">
             <div class="row">
                 <div class="col">
+                    <input type="text" id="display" class="subTextbox form-control" value="@_calculatorProcess" readonly>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <input type="text" id="display" class="textbox form-control" value="@_currentNumber" readonly>
                 </div>
             </div>
@@ -117,6 +122,7 @@
 
 @code {
     private string _currentNumber = "0";
+    private string _calculatorProcess = "0";
     private string _currentSymbol = "";
     private CalculatorCalc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets = new();
@@ -131,6 +137,7 @@
     private void OnCalcButtonClick(string str)
     {
         _currentNumber = CalculatorCalc.Add(str);
+        _calculatorProcess = CalculatorCalc.CalculatorProcess;
         decimal.TryParse(_currentNumber.ToString(), out var price);
         CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, price).ToList();
         StateHasChanged();
@@ -140,6 +147,7 @@
     {
         _currentNumber = CoinMarketView.Single(x => x.Id == newSymbol).Price.ToString();
         _currentSymbol = newSymbol;
+        _calculatorProcess = "0";
         await cookie.SetValue("symbol", _currentSymbol);
     }
 

@@ -11,6 +11,9 @@ public class CalculatorCalc
 
     public decimal CurrentNumber { get; private set; }
 
+    public string CalculatorProcess { get; private set; } = string.Empty;
+   
+
     public string Add(string str)
     {
         //未入力か確定の状態で演算子
@@ -62,7 +65,7 @@ public class CalculatorCalc
         return CurrentNumber.ToString();
     }
 
-    private static decimal ToNumber(IEnumerable<string> strList)
+    private decimal ToNumber(IEnumerable<string> strList)
     {
         var calcItem = new List<Tuple<decimal, string>>();
         var process = "";
@@ -84,6 +87,7 @@ public class CalculatorCalc
             process += str;
         }
         //processが""なら演算子なので計算結果、そうでなければ数字を返す
+        CalculatorProcess = string.Concat(calcItem.Select(x => x.Item1 + x.Item2)) + (process == "" ? "" : ToNumber(process));
         return process == "" ? Calculator(calcItem) : ToNumber(process);
     }
 
