@@ -23,13 +23,13 @@
                     @{
                         if (CoinMarketView.Count != 0)
                         {
-                            <img src="@CoinMarketView.Single(x => x.Id == _preSymbol).Image" class="img-thumbnail" alt="">
+                            <img src="@CoinMarketView.Single(x => x.Id == _currentSymbol).Image" class="img-thumbnail" alt="">
 
                             <select name="pets" id="pet-select" class="selectpicker" @onchange="@CoinSelectionChanged">
                                 @{
                                     foreach (var coinMarketView in CoinMarketView)
                                     {
-                                        <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id" selected="@(coinMarketView.Id ==_preSymbol)">@coinMarketView.Name</option>
+                                        <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id" selected="@(coinMarketView.Id ==_currentSymbol)">@coinMarketView.Name</option>
                                     }
                                 }
                             </select>
@@ -47,29 +47,29 @@
             <div class="row">
                 <div class="col">
                     <div class="grid">
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("7"))">7</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("8"))">8</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("9"))">9</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("c"))">c</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("☒"))">☒</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("7"))">7</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("8"))">8</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("9"))">9</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("c"))">c</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("☒"))">☒</button>
 
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("4"))">4</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("5"))">5</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("6"))">6</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("4"))">4</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("5"))">5</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("6"))">6</button>
                         <button class="p-1 btn btn-secondary"></button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("÷"))">÷</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("÷"))">÷</button>
 
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("1"))">1</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("2"))">2</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("3"))">3</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("×"))">×</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("-"))">-</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("1"))">1</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("2"))">2</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("3"))">3</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("×"))">×</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("-"))">-</button>
 
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("±"))">±</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("0"))">0</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("."))">.</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("+"))">+</button>
-                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnButtonClick("="))">=</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("±"))">±</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("0"))">0</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("."))">.</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("+"))">+</button>
+                        <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("="))">=</button>
                     </div>
                 </div>
             </div>
@@ -85,21 +85,13 @@
                         <div class="offcanvas-header">
                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         </div>
-                        <div>
-                            <select name="" id="" class="">
-                                @foreach (var name in DisplayNumber.Name)
-                                {
-                                    <option data-value="@name" selected="">@name</option>
-                                }
-                            </select>
-                        </div>
                         <div class="offcanvas-body">
                             <ul class="list-group">
                                 @{
                                     foreach (var coinMarketView in CoinMarketView)
                                     {
-                                        var active = coinMarketView.Id == _preSymbol ? "active" : "";
-                                        <li class="list-group-item text-truncate @active">
+                                        var active = coinMarketView.Id == _currentSymbol ? "active" : "";
+                                        <li class="list-group-item text-truncate @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
                                             <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
                                             @coinMarketView.Price @coinMarketView.Symbol
                                         </li>
@@ -125,7 +117,7 @@
 
 @code {
     private string _currentNumber = "0";
-    private string _preSymbol = "";
+    private string _currentSymbol = "";
     private CalculatorCalc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets = new();
     private List<CoinMarketView> CoinMarketView = new();
@@ -136,22 +128,30 @@
         HotKeysContext.Dispose();
     }
 
-    private void OnButtonClick(string str)
+    private void OnCalcButtonClick(string str)
     {
         _currentNumber = CalculatorCalc.Add(str);
         decimal.TryParse(_currentNumber.ToString(), out var price);
-        CoinMarketView = CoinMarkets.ToCoinMarketView(_preSymbol, price).ToList();
+        CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, price).ToList();
         StateHasChanged();
+    }
+
+    private async Task SetNewSymbolAsync(string newSymbol)
+    {
+        _currentNumber = CoinMarketView.Single(x => x.Id == newSymbol).Price.ToString();
+        _currentSymbol = newSymbol;
+        await cookie.SetValue("symbol", _currentSymbol);
     }
 
     private async void CoinSelectionChanged(ChangeEventArgs eventArgs)
     {
-        var nowSymbol = eventArgs?.Value?.ToString() ?? "";
+        var newSymbol = eventArgs?.Value?.ToString() ?? "";
+        await SetNewSymbolAsync(newSymbol);
+    }
 
-        decimal.TryParse(_currentNumber.ToString(), out var price);
-        _currentNumber = CoinMarketView.Single(x => x.Id == nowSymbol).Price.ToString();
-        _preSymbol = nowSymbol;
-        await cookie.SetValue("symbol", _preSymbol);
+    private async void OnListClick(string id)
+    {
+        await SetNewSymbolAsync(id);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -162,11 +162,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto") ?? new List<CoinMarkets>();
-        _preSymbol = await cookie.GetValue("symbol");
+        _currentSymbol = await cookie.GetValue("symbol");
         //TODO:直値
-        if (_preSymbol == "") _preSymbol = "yen";
-        CoinMarketView = CoinMarkets.ToCoinMarketView(_preSymbol, 0).ToList();
+        if (_currentSymbol == "") _currentSymbol = "yen";
+
+        CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>("home/krypto") ?? new List<CoinMarkets>();
+        CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, 0).ToList();
 
         HotKeysContext = HotKeys.CreateContext()
         .Add(Key.Num0, OnButtonClick0)
@@ -189,24 +190,24 @@
         .Add(Key.Delete, OnButtonClickX);
     }
 
-    private void OnButtonClick0() => OnButtonClick("0");
-    private void OnButtonClick1() => OnButtonClick("1");
-    private void OnButtonClick2() => OnButtonClick("2");
-    private void OnButtonClick3() => OnButtonClick("3");
-    private void OnButtonClick4() => OnButtonClick("4");
-    private void OnButtonClick5() => OnButtonClick("5");
-    private void OnButtonClick6() => OnButtonClick("6");
-    private void OnButtonClick7() => OnButtonClick("7");
-    private void OnButtonClick8() => OnButtonClick("8");
-    private void OnButtonClick9() => OnButtonClick("9");
-    private void OnButtonClickC() => OnButtonClick("c");
-    private void OnButtonClickX() => OnButtonClick("☒");
-    private void OnButtonClickDiv() => OnButtonClick("÷");
-    private void OnButtonClickMul() => OnButtonClick("×");
-    private void OnButtonClickAdd() => OnButtonClick("+");
-    private void OnButtonClickSub() => OnButtonClick("-");
-    private void OnButtonClickEqual() => OnButtonClick("=");
-    private void OnButtonClickDot() => OnButtonClick(".");
+    private void OnButtonClick0() => OnCalcButtonClick("0");
+    private void OnButtonClick1() => OnCalcButtonClick("1");
+    private void OnButtonClick2() => OnCalcButtonClick("2");
+    private void OnButtonClick3() => OnCalcButtonClick("3");
+    private void OnButtonClick4() => OnCalcButtonClick("4");
+    private void OnButtonClick5() => OnCalcButtonClick("5");
+    private void OnButtonClick6() => OnCalcButtonClick("6");
+    private void OnButtonClick7() => OnCalcButtonClick("7");
+    private void OnButtonClick8() => OnCalcButtonClick("8");
+    private void OnButtonClick9() => OnCalcButtonClick("9");
+    private void OnButtonClickC() => OnCalcButtonClick("c");
+    private void OnButtonClickX() => OnCalcButtonClick("☒");
+    private void OnButtonClickDiv() => OnCalcButtonClick("÷");
+    private void OnButtonClickMul() => OnCalcButtonClick("×");
+    private void OnButtonClickAdd() => OnCalcButtonClick("+");
+    private void OnButtonClickSub() => OnCalcButtonClick("-");
+    private void OnButtonClickEqual() => OnCalcButtonClick("=");
+    private void OnButtonClickDot() => OnCalcButtonClick(".");
 }
 
 
