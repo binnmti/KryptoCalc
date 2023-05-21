@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KryptoCalc.Shared", "Krypto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KryptoCalcTest", "CalcTest\KryptoCalcTest.csproj", "{81710DF8-0483-4696-A4D3-28CAF8564E52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calc", "Calc\Calc.csproj", "{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calc", "Calc\Calc.csproj", "{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebjobsUpdateSymbol", "WebjobsUpdateSymbol\WebjobsUpdateSymbol.csproj", "{207B48F6-B33B-449B-8C45-E8908024D639}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebjobsUpdateSymbol", "WebjobsUpdateSymbol\WebjobsUpdateSymbol.csproj", "{207B48F6-B33B-449B-8C45-E8908024D639}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

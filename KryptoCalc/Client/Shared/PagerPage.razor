@@ -1,0 +1,67 @@
+﻿@using KryptoCalc.Shared;
+
+@if (PaginatedParameter.IsFirstPage)
+{
+    <li class="page-item">
+        <a class="page-link" href="@(PaginatedParameter.Url)page=1&count=@PaginatedParameter.ViewCount">
+            <span>&laquo;&laquo;</span>
+        </a>
+    </li>
+}
+@if (PaginatedParameter.IsBeginPage)
+{
+    <li class="page-item">
+        <a class="page-link" href="@(PaginatedParameter.Url)page=@(PaginatedParameter.Page - 1)&count=@PaginatedParameter.ViewCount">
+            <span>&laquo;</span>
+        </a>
+    </li>
+}
+@if (PaginatedParameter.IsFirstPage)
+{
+    <li class="page-item disabled">
+        <a class="page-link">
+            <span>…</span>
+        </a>
+    </li>
+}
+@if (PaginatedParameter.BeginPage != PaginatedParameter.EndPage)
+{
+    @for (int i = PaginatedParameter.BeginPage; i <= PaginatedParameter.EndPage; i++)
+    {
+        var active = i == PaginatedParameter.Page ? "active" : "";
+        <li class="page-item @active">
+            <a class="page-link" href="@(PaginatedParameter.Url)page=@(i)&count=@PaginatedParameter.ViewCount">
+                <span>@i</span>
+            </a>
+        </li>
+    }
+}
+@if (PaginatedParameter.IsLastPage)
+{
+    <li class="page-item disabled">
+        <a class="page-link">
+            <span>…</span>
+        </a>
+    </li>
+}
+@if (PaginatedParameter.IsEndPage)
+{
+    <li class="page-item">
+        <a class="page-link" href="@(PaginatedParameter.Url)page=@(PaginatedParameter.Page + 1)&count=@PaginatedParameter.ViewCount">
+            <span>&raquo;</span>
+        </a>
+    </li>
+}
+@if (PaginatedParameter.IsLastPage)
+{
+    <li class="page-item">
+        <a class="page-link" href="@(PaginatedParameter.Url)page=@(PaginatedParameter.LastPage)&count=@PaginatedParameter.ViewCount">
+            <span>&raquo;&raquo;</span>
+        </a>
+    </li>
+}
+
+@code {
+    [Parameter]
+    public PaginatedParameter PaginatedParameter { get; set; }
+}
