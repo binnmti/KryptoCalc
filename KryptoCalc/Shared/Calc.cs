@@ -7,15 +7,19 @@ public class Calc
 {
     private List<string> InputList { get; set; } = new();
 
-    /// <summary>
-    /// 現在入力中の数字
-    /// </summary>
-    public decimal CurrentInputNumber { get; private set; }
+    // 現在入力中の数字
+    private decimal CurrentInputNumber { get; set; }
 
     /// <summary>
     /// 入力した計算式
     /// </summary>
     public string InputedNumberAndSymbol { get; private set; } = string.Empty;
+
+    public void Change(string value)
+    {
+        InputList.Clear();
+        InputList.Add(value);
+    }
 
     /// <summary>
     /// 入力

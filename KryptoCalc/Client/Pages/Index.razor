@@ -16,7 +16,7 @@
         <div class="col-12 col-sm-8">
             <div class="row">
                 <div class="col">
-                    <input type="text" id="display" class="subTextbox form-control" value="@_calculatorProcess" readonly>
+                    <input type="text" id="display" class="subTextbox form-control" value="@_inputedNumberAndSymbol" readonly>
                 </div>
             </div>
             <div class="row">
@@ -29,8 +29,6 @@
                     @{
                         if (CoinMarketView.Count != 0)
                         {
-                            //<img src="@CoinMarketView.Single(x => x.Id == _currentSymbol).Image" class="img-thumbnail" alt="">
-
                             <select name="pets" id="pet-select" class="selectpicker" @onchange="@OnChangeCoinSelection">
                                 @{
                                     foreach (var coinMarketView in CoinMarketView)
@@ -136,49 +134,23 @@
 
 @code {
     private string _currentNumber = "0";
-    private string _calculatorProcess = "0";
+    private string _inputedNumberAndSymbol = "0";
     private string _currentSymbol = "";
-
     private decimal _currentCoinPrice = 0;
-    private Calc CalculatorCalc = new();
+    private Calc Calc = new();
     private List<CoinMarkets> CoinMarkets;
     private List<CoinMarketView> CoinMarketView = new();
     private PaginatedParameter PaginatedParameter;
     private HotKeysContext HotKeysContext = default!;
     private IViewSelect DisplayNumber = new DisplayNumber();
 
-    public void Dispose()
-    {
-        HotKeysContext.Dispose();
-    }
-
-    protected override void OnInitialized()
-     => NavigationManager.LocationChanged += LocationChanged;
-
-    void IDisposable.Dispose()
-        => NavigationManager.LocationChanged -= LocationChanged;
-
-    private async void LocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        var query = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
-        ChangeDisplayNumber(query["page"], query["count"]);
-        StateHasChanged();
-    }
-
-    private void OnCalcButtonClick(string str)
-    {
-        _currentNumber = CalculatorCalc.Input(str);
-        _calculatorProcess = CalculatorCalc.InputedNumberAndSymbol;
-        decimal.TryParse(_currentNumber.ToString(), out var price);
-        CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
-    }
-
     private async Task SetNewSymbolAsync(string newSymbol)
     {
         _currentNumber = CoinMarketView.Single(x => x.Id == newSymbol).Price.ToString();
-        _currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == newSymbol).CurrentPrice;
+        _inputedNumberAndSymbol = "0";
         _currentSymbol = newSymbol;
-        _calculatorProcess = "0";
+        _currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == newSymbol).CurrentPrice;
+        Calc.Change(_currentNumber);
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
@@ -190,12 +162,35 @@
         CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>($"home/coinMarkets?page={page}&count={displayNum}");
         var total = await Http.GetFromJsonAsync<int>($"home/coinMarketsCount");
         decimal.TryParse(_currentNumber.ToString(), out var price);
-        //_currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == _currentSymbol).CurrentPrice;
         CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
         await cookie.SetValue("displayNumber", DisplayNumber.Value);
 
         PaginatedParameter = new PaginatedParameter(pageNum, displayNum, total, 3, "kryptocalc?");
         StateHasChanged();
+    }
+
+    public void Dispose()
+        => HotKeysContext.Dispose();
+
+    protected override void OnInitialized()
+     => NavigationManager.LocationChanged += OnLocationChanged;
+
+    void IDisposable.Dispose()
+        => NavigationManager.LocationChanged -= OnLocationChanged;
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var query = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
+        ChangeDisplayNumber(query["page"], query["count"]);
+        StateHasChanged();
+    }
+
+    private void OnCalcButtonClick(string str)
+    {
+        _currentNumber = Calc.Input(str);
+        _inputedNumberAndSymbol = Calc.InputedNumberAndSymbol;
+        decimal.TryParse(_currentNumber.ToString(), out var price);
+        CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
     }
 
     private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
@@ -229,6 +224,7 @@
 
         var displayNumber = await cookie.GetValue("displayNumber");
         if (displayNumber == "") displayNumber = DisplayNumber.Default;
+
         await ChangeDisplayNumber("1", displayNumber);
         _currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == _currentSymbol).CurrentPrice;
 
