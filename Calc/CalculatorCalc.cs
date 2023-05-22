@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Calc;
+﻿namespace Calc;
 
 //TODO:入力上限桁がいるかも*で上限簡単にこえるので。。。
 //TODO:割り算の誤差が気になる

@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KryptoCalc.Shared", "Krypto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KryptoCalcTest", "CalcTest\KryptoCalcTest.csproj", "{81710DF8-0483-4696-A4D3-28CAF8564E52}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calc", "Calc\Calc.csproj", "{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebjobsUpdateSymbol", "WebjobsUpdateSymbol\WebjobsUpdateSymbol.csproj", "{207B48F6-B33B-449B-8C45-E8908024D639}"
 EndProject
 Global
@@ -37,10 +35,6 @@ Global
 		{81710DF8-0483-4696-A4D3-28CAF8564E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81710DF8-0483-4696-A4D3-28CAF8564E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81710DF8-0483-4696-A4D3-28CAF8564E52}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4F9F788-D2B6-4E87-A73C-24078ED1DE19}.Release|Any CPU.Build.0 = Release|Any CPU
 		{207B48F6-B33B-449B-8C45-E8908024D639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{207B48F6-B33B-449B-8C45-E8908024D639}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{207B48F6-B33B-449B-8C45-E8908024D639}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -1,6 +1,5 @@
 ﻿@page "/"
 @page "/kryptocalc"
-@using Calc;
 @using KryptoCalc.Shared;
 @using KryptoCalc.Client.Select;
 @using Toolbelt.Blazor.HotKeys2
@@ -141,7 +140,7 @@
     private string _currentSymbol = "";
 
     private decimal _currentCoinPrice = 0;
-    private CalculatorCalc CalculatorCalc = new();
+    private Calc CalculatorCalc = new();
     private List<CoinMarkets> CoinMarkets;
     private List<CoinMarketView> CoinMarketView = new();
     private PaginatedParameter PaginatedParameter;
@@ -168,8 +167,8 @@
 
     private void OnCalcButtonClick(string str)
     {
-        _currentNumber = CalculatorCalc.Add(str);
-        _calculatorProcess = CalculatorCalc.CalculatorProcess;
+        _currentNumber = CalculatorCalc.Input(str);
+        _calculatorProcess = CalculatorCalc.InputedNumberAndSymbol;
         decimal.TryParse(_currentNumber.ToString(), out var price);
         CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
     }

@@ -1,4 +1,4 @@
-﻿namespace Calc;
+﻿namespace KryptoCalc.Shared;
 
 [TestClass]
 public class CalculatorCalcTest
@@ -26,15 +26,15 @@ public class CalculatorCalcTest
     public void TestAdd(string[] input, double expected)
     {
         // Arrange
-        var calc = new CalculatorCalc();
+        var calc = new Calc();
 
         // Act
         foreach (var str in input)
         {
-            calc.Add(str);
+            calc.Input(str);
         }
 
         // Assert
-        Assert.AreEqual((decimal)expected, calc.CurrentNumber);
+        Assert.AreEqual((decimal)expected, calc.CurrentInputNumber);
     }
 }
