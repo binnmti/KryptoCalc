@@ -9,6 +9,7 @@ public static class CoinMarketConvert
                 x.Name,
                 x.Symbol,
                 x.Image,
+                (decimal)x.CurrentPrice,
                 GetCoinPrice(price, newSymbol,currentPrice, x.Id, (decimal)x.CurrentPrice)));
 
     private static decimal GetCoinPrice(decimal price, string newSymbol, decimal newPrice, string currentSymbol, decimal currentPrice)

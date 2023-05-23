@@ -99,6 +99,17 @@
                                 }
                             </select>
                         </div>
+                        <div>
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    @{
+                                        var hit = CoinMarketView.Single(x => x.Id == _currentSymbol);
+                                        <img src="@hit.Image" class="img-thumbnail" alt="">
+                                        <span>@hit.Name (1@(hit.Symbol) = @(hit.Price)yen)</span>
+                                    }
+                                </li>
+                            </ul>
+                        </div>
                         <div class="offcanvas-body">
                             <ul class="list-group">
                                 @{
@@ -107,7 +118,7 @@
                                         var active = coinMarketView.Id == _currentSymbol ? "active" : "";
                                         <li class="list-group-item list-group-item-action text-truncate @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
                                             <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                                            @coinMarketView.Price @coinMarketView.Symbol
+                                            @coinMarketView.InputPrice @coinMarketView.Symbol
                                         </li>
                                     }
                                 }
@@ -146,7 +157,7 @@
 
     private async Task SetNewSymbolAsync(string newSymbol)
     {
-        _currentNumber = CoinMarketView.Single(x => x.Id == newSymbol).Price.ToString();
+        _currentNumber = CoinMarketView.Single(x => x.Id == newSymbol).InputPrice.ToString();
         _inputedNumberAndSymbol = "0";
         _currentSymbol = newSymbol;
         _currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == newSymbol).CurrentPrice;
