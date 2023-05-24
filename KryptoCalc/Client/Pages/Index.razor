@@ -29,6 +29,7 @@
                     @{
                         if (CoinMarketView.Count != 0)
                         {
+                            @*
                             <select name="pets" id="pet-select" class="selectpicker" @onchange="@OnChangeCoinSelection">
                                 @{
                                     foreach (var coinMarketView in CoinMarketView)
@@ -38,6 +39,11 @@
                                 }
                             </select>
                             <i class="fa-regular fa-circle-question" data-bs-toggle="popover" data-bs-content="毎日0:00に更新します"></i>
+                            *@
+                            var hit = CoinMarketView.Single(x => x.Id == _currentSymbol);
+                            <div>
+                                <img src="@hit.Image" class="img-thumbnail" alt=""><input value="@hit.Name" readonly>
+                            </div>
                         }
                         else
                         {
@@ -101,11 +107,18 @@
                         </div>
                         <div>
                             <ul class="list-group">
-                                <li class="list-group-item">
+                                <li class="list-group-item active">
                                     @{
                                         var hit = CoinMarketView.Single(x => x.Id == _currentSymbol);
-                                        <img src="@hit.Image" class="img-thumbnail" alt="">
-                                        <span>@hit.Name (1@(hit.Symbol) = @(hit.Price)yen)</span>
+                                        <div class="row">
+                                            <div class="col text-truncate">
+                                                <img src="@hit.Image" class="img-thumbnail" alt="">
+                                                <span>@hit.Name</span>
+                                            </div>
+                                            <div class="col text-truncate">
+                                                <span> (1@(hit.Symbol) = @(hit.CurrentPrice)yen)</span>
+                                            </div>
+                                        </div>
                                     }
                                 </li>
                             </ul>
@@ -113,12 +126,19 @@
                         <div class="offcanvas-body">
                             <ul class="list-group">
                                 @{
-                                    foreach (var coinMarketView in CoinMarketView)
+                                    foreach (var coinMarketView in CoinMarketView.Skip((_pageNum - 1) * _displayNumber).Take(_displayNumber))
                                     {
                                         var active = coinMarketView.Id == _currentSymbol ? "active" : "";
-                                        <li class="list-group-item list-group-item-action text-truncate @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
-                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                                            @coinMarketView.InputPrice @coinMarketView.Symbol
+                                        <li class="list-group-item list-group-item-action @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
+                                            <div class="row">
+                                                <div class="col text-truncate">
+                                                    <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                    <span>@coinMarketView.Name</span>
+                                                </div>
+                                                <div class="col text-truncate">
+                                                    <span>@coinMarketView.InputPrice @coinMarketView.Symbol</span>
+                                                </div>
+                                            </div>
                                         </li>
                                     }
                                 }
@@ -148,8 +168,10 @@
     private string _inputedNumberAndSymbol = "0";
     private string _currentSymbol = "";
     private decimal _currentCoinPrice = 0;
+    private int _pageNum = 0;
+    private int _displayNumber = 0;
     private Calc Calc = new();
-    private List<CoinMarkets> CoinMarkets;
+    //private List<CoinMarkets> CoinMarkets;
     private List<CoinMarketView> CoinMarketView = new();
     private PaginatedParameter PaginatedParameter;
     private HotKeysContext HotKeysContext = default!;
@@ -160,7 +182,7 @@
         _currentNumber = CoinMarketView.Single(x => x.Id == newSymbol).InputPrice.ToString();
         _inputedNumberAndSymbol = "0";
         _currentSymbol = newSymbol;
-        _currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == newSymbol).CurrentPrice;
+        _currentCoinPrice = (decimal)CoinMarketView.Single(x => x.Id == newSymbol).CurrentPrice;
         Calc.Change(_currentNumber);
         await cookie.SetValue("symbol", _currentSymbol);
     }
@@ -169,14 +191,15 @@
     {
         var pageNum = int.Parse(page);
         var displayNum = int.Parse(displayNumber);
-        DisplayNumber.Value = displayNumber;
-        CoinMarkets = await Http.GetFromJsonAsync<List<CoinMarkets>>($"home/coinMarkets?page={page}&count={displayNum}");
-        var total = await Http.GetFromJsonAsync<int>($"home/coinMarketsCount");
-        decimal.TryParse(_currentNumber.ToString(), out var price);
-        CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
-        await cookie.SetValue("displayNumber", DisplayNumber.Value);
+        _pageNum = pageNum;
+        _displayNumber = displayNum;
 
-        PaginatedParameter = new PaginatedParameter(pageNum, displayNum, total, 3, "kryptocalc?");
+        DisplayNumber.Value = displayNumber;
+        //CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?count=-1");
+        //var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
+        decimal.TryParse(_currentNumber.ToString(), out var price);
+        await cookie.SetValue("displayNumber", DisplayNumber.Value);
+        PaginatedParameter = new PaginatedParameter(pageNum, displayNum, CoinMarketView.Count, 3, "kryptocalc?");
         StateHasChanged();
     }
 
@@ -201,7 +224,7 @@
         _currentNumber = Calc.Input(str);
         _inputedNumberAndSymbol = Calc.InputedNumberAndSymbol;
         decimal.TryParse(_currentNumber.ToString(), out var price);
-        CoinMarketView = CoinMarkets.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
+        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, _currentCoinPrice, price).ToList();
     }
 
     private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
@@ -228,7 +251,7 @@
     }
 
     protected override async Task OnInitializedAsync()
-    {
+    {   
         _currentSymbol = await cookie.GetValue("symbol");
         //TODO:直値
         if (_currentSymbol == "") _currentSymbol = "yen";
@@ -236,8 +259,9 @@
         var displayNumber = await cookie.GetValue("displayNumber");
         if (displayNumber == "") displayNumber = DisplayNumber.Default;
 
+        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?count=-1");
         await ChangeDisplayNumber("1", displayNumber);
-        _currentCoinPrice = (decimal)CoinMarkets.Single(x => x.Id == _currentSymbol).CurrentPrice;
+        _currentCoinPrice = (decimal)CoinMarketView.Single(x => x.Id == _currentSymbol).CurrentPrice;
 
         HotKeysContext = HotKeys.CreateContext()
         .Add(Key.Num0, OnButtonClick0)

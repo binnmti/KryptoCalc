@@ -5,6 +5,6 @@ public record CoinMarketView(
     string Name,
     string Symbol,
     string Image,
-    decimal Price,
+    decimal CurrentPrice,
     decimal InputPrice
     );
