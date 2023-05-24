@@ -24,6 +24,13 @@ namespace KryptoCalc.Server.Controllers
             {
                 new CoinMarkets("yen", "yen", "Japan", "Japan.png", 1),
             };
+            //TODO:1の時のみyenを足す
+            //右上には1yen だけでなく入力値も出す
+            if(page == 1)
+            {
+
+            }
+
             page = Math.Max(page, 1);
             var start = (page - 1) * count;
             if(count == -1)
