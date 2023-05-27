@@ -8,7 +8,7 @@ public class Calc
     private List<string> InputList { get; set; } = new();
 
     // 現在入力中の数字
-    private decimal CurrentInputNumber { get; set; }
+    public decimal CurrentInputNumber { get; set; }
 
     /// <summary>
     /// 入力した計算式
