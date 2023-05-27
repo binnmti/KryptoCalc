@@ -16,42 +16,20 @@
         <div class="col-12 col-sm-8">
             <div class="row">
                 <div class="col">
-                    <input type="text" id="display" class="subTextbox form-control" value="@_inputedNumberAndSymbol" readonly>
+                    <input type="text" id="display" class="subTextbox form-control" value="@Calc.InputedNumberAndSymbol" readonly>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="text" id="display" class="textbox form-control" value="@_currentNumber" readonly>
+                    <input type="text" id="display" class="textbox form-control" value="@Calc.CurrentInputNumber" readonly>
                 </div>
             </div>
             <div class="row">
                 <div class="col text-end">
-                    @{
-                        if (!string.IsNullOrEmpty(CurrentCoinMarketView.Name))
-                        {
-                            @*
-                            <select name="pets" id="pet-select" class="selectpicker" @onchange="@OnChangeCoinSelection">
-                                @{
-                                    foreach (var coinMarketView in CoinMarketView)
-                                    {
-                                        <option data-thumbnail="@coinMarketView.Image" value="@coinMarketView.Id" selected="@(coinMarketView.Id ==_currentSymbol)">@coinMarketView.Name</option>
-                                    }
-                                }
-                            </select>
-                            <i class="fa-regular fa-circle-question" data-bs-toggle="popover" data-bs-content="毎日0:00に更新します"></i>
-                            *@
-                            var hit = CurrentCoinMarketView;
-                            <div>
-                                <img src="@hit.Image" class="img-thumbnail" alt=""><input value="@hit.Name" readonly>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        }
-                    }
+                    <div>
+                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                        <input value="@CurrentCoinMarketView.Name" readonly>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -168,45 +146,37 @@
 </div>
 
 @code {
-    private string _currentNumber = "0";
-    private string _inputedNumberAndSymbol = "0";
     private string _currentSymbol = "";
-    private int _pageNum = 0;
+    private int _pageNumer = 0;
     private int _displayNumber = 0;
     private Calc Calc = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
     private List<CoinMarketView> CoinMarketView = new();
-    private PaginatedParameter PaginatedParameter;
+    private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
+
     private IViewSelect DisplayNumber = new DisplayNumber();
 
     private async Task SetNewSymbolAsync(string newSymbol)
     {
         var current = CoinMarketView.Single(x => x.Id == newSymbol);
         CurrentCoinMarketView = current;
-        _currentNumber = current.InputPrice.ToString();
-        _inputedNumberAndSymbol = "0";
         _currentSymbol = newSymbol;
-        Calc.Change(_currentNumber);
-
+        Calc.Change(current.InputPrice.ToString());
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
     private async Task ChangeDisplayNumber(string page, string displayNumber)
     {
-        var pageNum = int.Parse(page);
-        var displayNum = int.Parse(displayNumber);
-        _pageNum = pageNum;
-        _displayNumber = displayNum;
-
+        _pageNumer = int.Parse(page);
+        _displayNumber = int.Parse(displayNumber);
         DisplayNumber.Value = displayNumber;
-        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={displayNumber}");
 
+        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={displayNumber}") ?? new List<CoinMarketView>();
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
-        decimal.TryParse(_currentNumber.ToString(), out var price);
         await cookie.SetValue("displayNumber", DisplayNumber.Value);
-        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, price).ToList();
-        PaginatedParameter = new PaginatedParameter(pageNum, displayNum, total, 3, "kryptocalc?");
+        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
+        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
         StateHasChanged();
     }
 
@@ -214,7 +184,7 @@
         => HotKeysContext.Dispose();
 
     protected override void OnInitialized()
-     => NavigationManager.LocationChanged += OnLocationChanged;
+        => NavigationManager.LocationChanged += OnLocationChanged;
 
     void IDisposable.Dispose()
         => NavigationManager.LocationChanged -= OnLocationChanged;
@@ -222,28 +192,22 @@
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         var query = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
-        await ChangeDisplayNumber(query["page"], query["count"]);
+        var page = query["page"]?.ToString() ?? "";
+        var count = query["count"]?.ToString() ?? "";
+        await ChangeDisplayNumber(page, count);
         StateHasChanged();
-    }
-
-    private void OnCalcButtonClick(string str)
-    {
-        _currentNumber = Calc.Input(str);
-        _inputedNumberAndSymbol = Calc.InputedNumberAndSymbol;
-        decimal.TryParse(_currentNumber.ToString(), out var price);
-        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, price).ToList();
-    }
-
-    private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
-    {
-        var newSymbol = eventArgs?.Value?.ToString() ?? "";
-        await SetNewSymbolAsync(newSymbol);
     }
 
     private async void OnChangeDisplayNumber(ChangeEventArgs eventArgs)
     {
         var newDisplay = eventArgs?.Value?.ToString() ?? "";
         await ChangeDisplayNumber("1", newDisplay);
+    }
+
+    private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
+    {
+        var newSymbol = eventArgs?.Value?.ToString() ?? "";
+        await SetNewSymbolAsync(newSymbol);
     }
 
     private async void OnListClick(string id)
@@ -255,6 +219,13 @@
     {
         await base.OnAfterRenderAsync(firstRender);
         await JS.InvokeVoidAsync("blazorInit");
+    }
+
+    private void OnCalcButtonClick(string str)
+    {
+        Calc.Input(str);
+        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
@@ -270,44 +241,25 @@
         await SetNewSymbolAsync(_currentSymbol);
 
         HotKeysContext = HotKeys.CreateContext()
-        .Add(Key.Num0, OnButtonClick0)
-        .Add(Key.Num1, OnButtonClick1)
-        .Add(Key.Num2, OnButtonClick2)
-        .Add(Key.Num3, OnButtonClick3)
-        .Add(Key.Num4, OnButtonClick4)
-        .Add(Key.Num5, OnButtonClick5)
-        .Add(Key.Num6, OnButtonClick6)
-        .Add(Key.Num7, OnButtonClick7)
-        .Add(Key.Num8, OnButtonClick8)
-        .Add(Key.Num9, OnButtonClick9)
-        .Add(Key.C, OnButtonClickC)
-        .Add(Key.Plus, OnButtonClickAdd)
-        .Add(Key.Minus, OnButtonClickSub)
-        .Add(Key.Asterisk, OnButtonClickMul)
-        .Add(Key.Slash, OnButtonClickDiv)
-        .Add(Key.Equal, OnButtonClickEqual)
-        .Add(Key.Period, OnButtonClickDot)
-        .Add(Key.Delete, OnButtonClickX);
+        .Add(Key.Num0, () => OnCalcButtonClick("0"))
+        .Add(Key.Num1, () => OnCalcButtonClick("1"))
+        .Add(Key.Num2, () => OnCalcButtonClick("2"))
+        .Add(Key.Num3, () => OnCalcButtonClick("3"))
+        .Add(Key.Num4, () => OnCalcButtonClick("4"))
+        .Add(Key.Num5, () => OnCalcButtonClick("5"))
+        .Add(Key.Num6, () => OnCalcButtonClick("6"))
+        .Add(Key.Num7, () => OnCalcButtonClick("7"))
+        .Add(Key.Num8, () => OnCalcButtonClick("8"))
+        .Add(Key.Num9, () => OnCalcButtonClick("9"))
+        .Add(Key.C, () => OnCalcButtonClick("C"))
+        .Add(Key.Plus, () => OnCalcButtonClick("+"))
+        .Add(Key.Minus, () => OnCalcButtonClick("-"))
+        .Add(Key.Asterisk, () => OnCalcButtonClick("×"))
+        .Add(Key.Slash, () => OnCalcButtonClick("÷"))
+        .Add(Key.Equal, () => OnCalcButtonClick("="))
+        .Add(Key.Period, () => OnCalcButtonClick("."))
+        .Add(Key.Delete, () => OnCalcButtonClick("☒"));
     }
-
-    private void OnButtonClick0() => OnCalcButtonClick("0");
-    private void OnButtonClick1() => OnCalcButtonClick("1");
-    private void OnButtonClick2() => OnCalcButtonClick("2");
-    private void OnButtonClick3() => OnCalcButtonClick("3");
-    private void OnButtonClick4() => OnCalcButtonClick("4");
-    private void OnButtonClick5() => OnCalcButtonClick("5");
-    private void OnButtonClick6() => OnCalcButtonClick("6");
-    private void OnButtonClick7() => OnCalcButtonClick("7");
-    private void OnButtonClick8() => OnCalcButtonClick("8");
-    private void OnButtonClick9() => OnCalcButtonClick("9");
-    private void OnButtonClickC() => OnCalcButtonClick("c");
-    private void OnButtonClickX() => OnCalcButtonClick("☒");
-    private void OnButtonClickDiv() => OnCalcButtonClick("÷");
-    private void OnButtonClickMul() => OnCalcButtonClick("×");
-    private void OnButtonClickAdd() => OnCalcButtonClick("+");
-    private void OnButtonClickSub() => OnCalcButtonClick("-");
-    private void OnButtonClickEqual() => OnCalcButtonClick("=");
-    private void OnButtonClickDot() => OnCalcButtonClick(".");
 }
 
 

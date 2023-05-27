@@ -7,7 +7,9 @@ public class Calc
 {
     private List<string> InputList { get; set; } = new();
 
-    // 現在入力中の数字
+    /// <summary>
+    /// 現在入力中の数字
+    /// </summary>
     public decimal CurrentInputNumber { get; set; }
 
     /// <summary>
@@ -19,6 +21,7 @@ public class Calc
     {
         InputList.Clear();
         InputList.Add(value);
+        CurrentInputNumber = ToCurrentInputNumber(InputList);
     }
 
     /// <summary>
