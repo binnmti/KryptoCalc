@@ -86,28 +86,32 @@
                         *@
                         </div>
                         <div>
-                            <ul class="list-group">
-                                <li class="list-group-item active">
-                                    @{
-                                        if (CurrentCoinMarketView != null)
-                                        {
-                                            <div class="row">
-                                                <div class="col text-truncate">
-                                                    <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
-                                                    <span>@CurrentCoinMarketView.Name</span>
-                                                </div>
-                                                <div class="col text-truncate">
-                                                    <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)yen</span>
-                                                </div>
-                                            </div>
-                                        }
-                                    }
-                                </li>
-                            </ul>
                         </div>
                         <div class="offcanvas-body">
                             <ul class="list-group">
                                 @{
+                                    <li class="list-group-item active">
+                                        @{
+                                            if (CurrentCoinMarketView != null)
+                                            {
+                                                <div class="row">
+                                                    <div class="col text-truncate fw-bold fs-5">
+                                                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                                                        <span>@CurrentCoinMarketView.Name</span>
+                                                    </div>
+                                                    <div class="col text-truncate">
+                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentCoinMarketView.Symbol</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col text-truncate">
+                                                        <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)yen</span>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </li>
+
                                     foreach (var coinMarketView in CoinMarketView)
                                     {
                                         var active = coinMarketView.Id == _currentSymbol ? "active" : "";
@@ -159,10 +163,9 @@
 
     private async Task SetNewSymbolAsync(string newSymbol)
     {
-        var current = CoinMarketView.Single(x => x.Id == newSymbol);
-        CurrentCoinMarketView = current;
+        CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == newSymbol);
         _currentSymbol = newSymbol;
-        Calc.Change(current.InputPrice.ToString());
+        Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
@@ -204,11 +207,11 @@
         await ChangeDisplayNumber("1", newDisplay);
     }
 
-    private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
-    {
-        var newSymbol = eventArgs?.Value?.ToString() ?? "";
-        await SetNewSymbolAsync(newSymbol);
-    }
+    //private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
+    //{
+    //    var newSymbol = eventArgs?.Value?.ToString() ?? "";
+    //    await SetNewSymbolAsync(newSymbol);
+    //}
 
     private async void OnListClick(string id)
     {
@@ -225,13 +228,14 @@
     {
         Calc.Input(str);
         CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
+        CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == _currentSymbol);
         StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
     {   
-        _currentSymbol = await cookie.GetValue("symbol");
         //TODO:直値
+        _currentSymbol = await cookie.GetValue("symbol");
         if (_currentSymbol == "") _currentSymbol = "yen";
 
         var displayNumber = await cookie.GetValue("displayNumber");
