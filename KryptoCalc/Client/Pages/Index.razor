@@ -13,7 +13,7 @@
 <PageTitle>Index</PageTitle>
 <div class="container">
     <div class="row">
-        <div class="col-12 col-sm-8">
+        <div class="col-sm-12 col-md-6 col-lg-7 col-xl-8">
             <div class="row">
                 <div class="col">
                     <input type="text" id="display" class="subTextbox form-control" value="@Calc.InputedNumberAndSymbol" readonly>
@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-4 navbar navbar-expand-sm">
+        <div class="col-md-6 col-lg-5 col-xl-4 navbar navbar-expand-sm">
             @{
                 if (CoinMarketView.Any())
                 {
@@ -90,41 +90,64 @@
                         <div class="offcanvas-body">
                             <ul class="list-group">
                                 @{
-                                    <li class="list-group-item active">
+                                    <li class="list-group-item rounded active">
                                         @{
                                             if (CurrentCoinMarketView != null)
                                             {
                                                 <div class="row">
-                                                    <div class="col text-truncate fw-bold fs-5">
+                                                    <div class="col text-truncate fw-bold">
                                                         <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
                                                         <span>@CurrentCoinMarketView.Name</span>
                                                     </div>
                                                     <div class="col text-truncate">
-                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentCoinMarketView.Symbol</span>
+                                                        <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)yen</span>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col text-truncate">
-                                                        <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)yen</span>
+                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentCoinMarketView.Symbol</span>
                                                     </div>
                                                 </div>
                                             }
                                         }
                                     </li>
-
+                                    <li class="">
+                                    </li>
                                     foreach (var coinMarketView in CoinMarketView)
                                     {
                                         var active = coinMarketView.Id == _currentSymbol ? "active" : "";
-                                        <li class="list-group-item list-group-item-action @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
-                                            <div class="row">
-                                                <div class="col text-truncate">
-                                                    <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                                                    <span>@coinMarketView.Name</span>
-                                                </div>
-                                                <div class="col text-truncate">
-                                                    <span>@coinMarketView.InputPrice @coinMarketView.Symbol</span>
-                                                </div>
-                                            </div>
+                                        <li class="list-group-item list-group-item-action rounded @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
+                                            @{
+                                                if (DisplayType.Value == "1")
+                                                {
+                                                    <div class="row">
+                                                        <div class="col text-truncate">
+                                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                            <span>@coinMarketView.Name</span>
+                                                        </div>
+                                                        <div class="col text-truncate">
+                                                            <span>@coinMarketView.InputPrice @coinMarketView.Symbol</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="row">
+                                                        <div class="col text-truncate">
+                                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                            <span>@coinMarketView.Name</span>
+                                                        </div>
+                                                        <div class="col text-truncate">
+                                                            <span>1@(coinMarketView.Symbol) = @(coinMarketView.CurrentPrice)yen</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col text-truncate">
+                                                            <span>@coinMarketView.InputPrice @coinMarketView.Symbol</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
                                         </li>
                                     }
                                 }
@@ -152,14 +175,14 @@
 @code {
     private string _currentSymbol = "";
     private int _pageNumer = 0;
-    private int _displayNumber = 0;
+    private int _displayType = 0;
     private Calc Calc = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
     private List<CoinMarketView> CoinMarketView = new();
     private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
 
-    private IViewSelect DisplayNumber = new DisplayNumber();
+    private IViewSelect DisplayType = new DisplayType();
 
     private async Task SetNewSymbolAsync(string newSymbol)
     {
@@ -169,17 +192,21 @@
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
-    private async Task ChangeDisplayNumber(string page, string displayNumber)
+    private async Task ChangeDisplayNumber(string page, string displayType)
     {
         _pageNumer = int.Parse(page);
-        _displayNumber = int.Parse(displayNumber);
-        DisplayNumber.Value = displayNumber;
-
+        _displayType = int.Parse(displayType);
+        DisplayType.Value = displayType;
+        var displayNumber = _displayType switch
+        {
+            1 => 15,
+            _ => 10,
+        };
         CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={displayNumber}") ?? new List<CoinMarketView>();
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
-        await cookie.SetValue("displayNumber", DisplayNumber.Value);
+        await cookie.SetValue("DisplayType", DisplayType.Value);
         CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
-        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
+        PaginatedParameter = new PaginatedParameter(_pageNumer, displayNumber, total, 3, "kryptocalc?");
         StateHasChanged();
     }
 
@@ -207,12 +234,6 @@
         await ChangeDisplayNumber("1", newDisplay);
     }
 
-    //private async void OnChangeCoinSelection(ChangeEventArgs eventArgs)
-    //{
-    //    var newSymbol = eventArgs?.Value?.ToString() ?? "";
-    //    await SetNewSymbolAsync(newSymbol);
-    //}
-
     private async void OnListClick(string id)
     {
         await SetNewSymbolAsync(id);
@@ -238,10 +259,10 @@
         _currentSymbol = await cookie.GetValue("symbol");
         if (_currentSymbol == "") _currentSymbol = "yen";
 
-        var displayNumber = await cookie.GetValue("displayNumber");
-        if (displayNumber == "") displayNumber = DisplayNumber.Default;
+        var displayType = await cookie.GetValue("DisplayType");
+        if (displayType == "") displayType = DisplayType.Default;
 
-        await ChangeDisplayNumber("1", displayNumber);
+        await ChangeDisplayNumber("1", displayType);
         await SetNewSymbolAsync(_currentSymbol);
 
         HotKeysContext = HotKeys.CreateContext()
