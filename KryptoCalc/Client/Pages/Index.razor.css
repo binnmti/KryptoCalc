@@ -15,7 +15,7 @@
     height: 32px;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 1200px) {
     .btn {
         max-width: 100%;
         min-width: 100px;
@@ -37,23 +37,45 @@
     }
 }
 
-@media screen and (min-width: 576px) {
+@media screen and (min-width:768px) and ( max-width:1200px) {
     .btn {
         max-width: 100%;
-        min-width: 50px;
-        font-size: 50px;
+        min-width: 30px;
+        font-size: 30px;
         max-height: 100%;
     }
 
     .textbox {
         max-width: 100%;
-        font-size: 50px;
+        font-size: 30px;
         text-align: right;
     }
 
     .subTextbox {
         max-width: 100%;
-        font-size: 25px;
+        font-size: 20px;
+        text-align: right;
+        color: dimgray;
+    }
+}
+
+@media screen and (min-width:576px) and ( max-width:768px) {
+    .btn {
+        max-width: 100%;
+        min-width: 20px;
+        font-size: 20px;
+        max-height: 100%;
+    }
+
+    .textbox {
+        max-width: 100%;
+        font-size: 20px;
+        text-align: right;
+    }
+
+    .subTextbox {
+        max-width: 100%;
+        font-size: 10px;
         text-align: right;
         color: dimgray;
     }
@@ -62,20 +84,20 @@
 @media screen and (max-width: 576px) {
     .btn {
         max-width: 100%;
-        min-width: 50px;
-        font-size: 50px;
+        min-width: 30px;
+        font-size: 30px;
         max-height: 100%;
     }
 
     .textbox {
         max-width: 100%;
-        font-size: 25px;
+        font-size: 30px;
         text-align: right;
     }
 
     .subTextbox {
         max-width: 100%;
-        font-size: 12px;
+        font-size: 10px;
         text-align: right;
         color: dimgray;
     }
