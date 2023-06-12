@@ -75,15 +75,15 @@
                         </div>
                         <div>
                         @*
-                            <select id="@DisplayNumber.Id" class="form-control form-control-sm" @onchange="@OnChangeDisplayNumber">
-                                @{
-                                    foreach (var item in DisplayNumber.Items)
-                                    {
-                                        <option value=@(item.Key) selected="@(DisplayNumber.Value == item.Key)">@item.Value</option>
-                                    }
+                            <select id="@DisplayType.Id" class="form-control form-control-sm" @onchange="@OnChangeDisplayType">
+                            @{
+                                foreach (var item in DisplayType.Items)
+                                {
+                                    <option value=@(item.Key) selected="@(DisplayType.Value == item.Key)">@item.Value</option>
                                 }
-                            </select>
-                        *@
+                            }
+                        </select>
+                    *@
                         </div>
                         <div>
                         </div>
@@ -174,12 +174,12 @@
     private string _currentSymbol = "";
     private int _pageNumer = 0;
     private int _displayType = 0;
+    private readonly int _displayNumber = 10;
     private Calc Calc = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
     private List<CoinMarketView> CoinMarketView = new();
     private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
-
     private IViewSelect DisplayType = new DisplayType();
 
     private async Task SetNewSymbolAsync(string newSymbol)
@@ -195,16 +195,11 @@
         _pageNumer = int.Parse(page);
         _displayType = int.Parse(displayType);
         DisplayType.Value = displayType;
-        var displayNumber = _displayType switch
-        {
-            1 => 15,
-            _ => 10,
-        };
-        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={displayNumber}") ?? new List<CoinMarketView>();
+        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}") ?? new List<CoinMarketView>();
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
         await cookie.SetValue("DisplayType", DisplayType.Value);
         CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
-        PaginatedParameter = new PaginatedParameter(_pageNumer, displayNumber, total, 3, "kryptocalc?");
+        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
         StateHasChanged();
     }
 
@@ -226,7 +221,7 @@
         StateHasChanged();
     }
 
-    private async void OnChangeDisplayNumber(ChangeEventArgs eventArgs)
+    private async void OnChangeDisplayType(ChangeEventArgs eventArgs)
     {
         var newDisplay = eventArgs?.Value?.ToString() ?? "";
         await ChangeDisplayNumber("1", newDisplay);
