@@ -25,7 +25,7 @@ public record CoinMarkets
     public required string Name { get; set; }
     public required string Image { get; set; }
     public float CurrentPrice { get; set; }
-    public long MarketCap { get; set; }
+    public float MarketCap { get; set; }
     public int MarketCapRank { get; set; }
     public float FullyDilutedValuation { get; set; }
     public float TotalVolume { get; set; }

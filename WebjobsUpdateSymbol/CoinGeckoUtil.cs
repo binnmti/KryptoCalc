@@ -15,11 +15,11 @@ internal static class CoinGeckoUtil
         public string symbol { get; set; } = "";
         public string name { get; set; } = "";
         public string image { get; set; } = "";
-        public float current_price { get; set; }
-        public long market_cap { get; set; }
-        public int market_cap_rank { get; set; }
+        public float? current_price { get; set; }
+        public float? market_cap { get; set; }
+        public int? market_cap_rank { get; set; }
         public float? fully_diluted_valuation { get; set; }
-        public float total_volume { get; set; }
+        public float? total_volume { get; set; }
         public float? high_24h { get; set; }
         public float? low_24h { get; set; }
         public float? price_change_24h { get; set; }
@@ -29,11 +29,11 @@ internal static class CoinGeckoUtil
         public float circulating_supply { get; set; }
         public float? total_supply { get; set; }
         public float? max_supply { get; set; }
-        public float ath { get; set; }
-        public float ath_change_percentage { get; set; }
+        public float? ath { get; set; }
+        public float? ath_change_percentage { get; set; }
         public DateTime ath_date { get; set; }
-        public float atl { get; set; }
-        public float atl_change_percentage { get; set; }
+        public float? atl { get; set; }
+        public float? atl_change_percentage { get; set; }
         public DateTime atl_date { get; set; }
         public DateTime last_updated { get; set; }
     }
@@ -170,7 +170,6 @@ internal static class CoinGeckoUtil
     internal static async Task<List<CoinMarkets>> GetCoinMarketListAsync(HttpClient httpClient)
     {
         var coinMarkets = new List<CoinMarkets>();
-
         int page = 1;
         while (true)
         {
@@ -184,28 +183,28 @@ internal static class CoinGeckoUtil
                 Id = x.id,
                 Name = x.name,
                 Symbol = x.symbol,
-                Ath = x.ath,
-                AthChangePercentage = x.ath_change_percentage,
+                Ath = x.ath ?? default,
+                AthChangePercentage = x.ath_change_percentage ?? default,
                 AthDate = x.ath_date,
-                Atl = x.atl,
+                Atl = x.atl ?? default,
                 Image = x.image,
-                AtlChangePercentage = x.atl_change_percentage,
+                AtlChangePercentage = x.atl_change_percentage ?? default,
                 AtlDate = x.atl_date,
                 CirculatingSupply = x.circulating_supply,
-                CurrentPrice = x.current_price,
+                CurrentPrice = x.current_price ?? default,
                 FullyDilutedValuation = x.fully_diluted_valuation ?? default,
                 High24h = x.high_24h ?? default,
                 LastUpdated = x.last_updated,
                 Low24h = x.low_24h ?? default,
-                MarketCap = x.market_cap,
+                MarketCap = x.market_cap ?? default,
                 MarketCapChange24h = x.market_cap_change_24h ?? default,
                 MarketCapChangePercentage24h = x.market_cap_change_percentage_24h ?? default,
-                MarketCapRank = x.market_cap_rank,
+                MarketCapRank = x.market_cap_rank ?? default,
                 MaxSupply = x.max_supply ?? default,
                 PriceChange24h = x.price_change_24h ?? default,
                 PriceChangePercentage24h = x.price_change_percentage_24h ?? default, 
                 TotalSupply = x.total_supply ?? default,
-                TotalVolume = x.total_volume,
+                TotalVolume = x.total_volume ?? default,
             }));
             Console.WriteLine($"coins/markets/page={page}&count={coinMarkets.Count}");
             page++;
