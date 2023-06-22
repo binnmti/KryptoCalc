@@ -26,7 +26,7 @@ internal static class CoinGeckoUtil
         public float? price_change_percentage_24h { get; set; }
         public float? market_cap_change_24h { get; set; }
         public float? market_cap_change_percentage_24h { get; set; }
-        public float circulating_supply { get; set; }
+        public float? circulating_supply { get; set; }
         public float? total_supply { get; set; }
         public float? max_supply { get; set; }
         public float? ath { get; set; }
@@ -190,7 +190,7 @@ internal static class CoinGeckoUtil
                 Image = x.image,
                 AtlChangePercentage = x.atl_change_percentage ?? default,
                 AtlDate = x.atl_date,
-                CirculatingSupply = x.circulating_supply,
+                CirculatingSupply = x.circulating_supply ?? default,
                 CurrentPrice = x.current_price ?? default,
                 FullyDilutedValuation = x.fully_diluted_valuation ?? default,
                 High24h = x.high_24h ?? default,
