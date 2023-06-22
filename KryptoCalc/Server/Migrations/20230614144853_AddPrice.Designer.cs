@@ -4,6 +4,7 @@ using KryptoCalc.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KryptoCalc.Server.Migrations
 {
     [DbContext(typeof(KryptoCalcServerContext))]
-    partial class KryptoCalcServerContextModelSnapshot : ModelSnapshot
+    [Migration("20230614144853_AddPrice")]
+    partial class AddPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,8 +85,8 @@ namespace KryptoCalc.Server.Migrations
                     b.Property<float>("CurrentPrice")
                         .HasColumnType("real");
 
-                    b.Property<float>("FullyDilutedValuation")
-                        .HasColumnType("real");
+                    b.Property<long>("FullyDilutedValuation")
+                        .HasColumnType("bigint");
 
                     b.Property<float>("High24h")
                         .HasColumnType("real");
@@ -132,8 +135,8 @@ namespace KryptoCalc.Server.Migrations
                     b.Property<float>("TotalSupply")
                         .HasColumnType("real");
 
-                    b.Property<float>("TotalVolume")
-                        .HasColumnType("real");
+                    b.Property<long>("TotalVolume")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

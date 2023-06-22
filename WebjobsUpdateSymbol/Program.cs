@@ -18,10 +18,17 @@ httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.
 using var sqlConnection = new SqlConnection(connectionString);
 
 var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
+var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, coinMarketList.Select(x => x.Id).ToList());
 int co = 0;
 foreach (var coinMarket in coinMarketList)
 {
     sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
 
     Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
+}
+foreach (var price in priceList)
+{
+    sqlConnection.Insert(price, "Id", price.Id);
+
+    Console.WriteLine($"{co++}/{priceList.Count}:{price.Id}");
 }

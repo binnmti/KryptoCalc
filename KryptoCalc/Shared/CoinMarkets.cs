@@ -27,8 +27,8 @@ public record CoinMarkets
     public float CurrentPrice { get; set; }
     public long MarketCap { get; set; }
     public int MarketCapRank { get; set; }
-    public long FullyDilutedValuation { get; set; }
-    public long TotalVolume { get; set; }
+    public float FullyDilutedValuation { get; set; }
+    public float TotalVolume { get; set; }
     public float High24h { get; set; }
     public float Low24h { get; set; }
     public float PriceChange24h { get; set; }
