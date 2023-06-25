@@ -31,11 +31,11 @@ internal static class CoinGeckoUtil
         public float? max_supply { get; set; }
         public float? ath { get; set; }
         public float? ath_change_percentage { get; set; }
-        public DateTime ath_date { get; set; }
+        public DateTime? ath_date { get; set; }
         public float? atl { get; set; }
         public float? atl_change_percentage { get; set; }
-        public DateTime atl_date { get; set; }
-        public DateTime last_updated { get; set; }
+        public DateTime? atl_date { get; set; }
+        public DateTime? last_updated { get; set; }
     }
 
     private static readonly List<string> CurrencyList = new List<string>()
@@ -161,7 +161,7 @@ internal static class CoinGeckoUtil
             var content = await response.Content.ReadAsStringAsync() ?? "";
             priceList.AddRange(idChunk.Select(id => GetPrice(JsonNode.Parse(content), id)));
 
-            Console.WriteLine($"coins/markets/page={page++}&count={idChunk.Length}");
+            Console.WriteLine($"simple/price/page={page++}&count={priceList.Count}");
             Thread.Sleep(1000 * 60);
         }
         return priceList;
@@ -185,16 +185,16 @@ internal static class CoinGeckoUtil
                 Symbol = x.symbol,
                 Ath = x.ath ?? default,
                 AthChangePercentage = x.ath_change_percentage ?? default,
-                AthDate = x.ath_date,
+                AthDate = x.ath_date ?? default,
                 Atl = x.atl ?? default,
                 Image = x.image,
                 AtlChangePercentage = x.atl_change_percentage ?? default,
-                AtlDate = x.atl_date,
+                AtlDate = x.atl_date ?? default,
                 CirculatingSupply = x.circulating_supply ?? default,
                 CurrentPrice = x.current_price ?? default,
                 FullyDilutedValuation = x.fully_diluted_valuation ?? default,
                 High24h = x.high_24h ?? default,
-                LastUpdated = x.last_updated,
+                LastUpdated = x.last_updated ?? default,
                 Low24h = x.low_24h ?? default,
                 MarketCap = x.market_cap ?? default,
                 MarketCapChange24h = x.market_cap_change_24h ?? default,
