@@ -25,10 +25,12 @@ foreach (var coinMarket in coinMarketList)
     sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
 
     Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
+    Thread.Sleep(1);
 }
 foreach (var price in priceList)
 {
     sqlConnection.Insert(price, "Id", price.Id);
 
     Console.WriteLine($"{co++}/{priceList.Count}:{price.Id}");
+    Thread.Sleep(1);
 }
