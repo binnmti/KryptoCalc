@@ -26,18 +26,18 @@ namespace KryptoCalc.Server.Controllers
             {
                 coinMarkets.Add(new CoinMarkets("yen", "yen", "Japan", "Japan.png", 1));
             }
-            page = Math.Max(page, 1);
-            var start = (page - 1) * count;
-            if(count == -1)
-            {
-                coinMarkets.AddRange(_context.CoinMarkets.OrderBy(x => x.MarketCapRank).AsTracking());
-            }
-            else
-            {
-                coinMarkets.AddRange(_context.CoinMarkets.OrderBy(x => x.MarketCapRank).Skip(start).Take(count).AsTracking());
-            }
+            var skip = (Math.Max(page, 1) - 1) * count;
+            var take = count == -1 ? int.MaxValue : count;
+            coinMarkets.AddRange(GetCoinMarkets(skip, take));
             return coinMarkets;
         }
+
+        IQueryable<CoinMarkets> GetCoinMarkets(int skip, int take)
+            => _context.CoinMarkets.Where(x => x.MarketCapRank != 0)
+                                .OrderBy(x => x.MarketCapRank)
+                                .Skip(skip)
+                                .Take(take)
+                                .AsTracking();
 
         [Route("/coinMarketsCount")]
         public async Task<int> CoinMarketsCount()
