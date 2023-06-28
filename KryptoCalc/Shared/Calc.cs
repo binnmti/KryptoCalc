@@ -92,7 +92,7 @@ public class Calc
 
     private decimal ToCurrentInputNumber(IEnumerable<string> inputList)
     {
-        var calcItem = new List<Tuple<decimal, string>>();
+        var calcItem = new List<(decimal, string)>();
         var inputProcess = "";
         var numberPreOperator = 0m;
         foreach (var input in inputList)
@@ -105,16 +105,24 @@ public class Calc
                 {
                     numberPreOperator = ToNumber(inputProcess);
                 }
-                calcItem.Add(Tuple.Create(numberPreOperator, ope));
+                calcItem.Add((numberPreOperator, ope));
                 inputProcess = "";
                 continue;
             }
             inputProcess += input;
         }
-        //processが""なら演算子なので計算結果、そうでなければ数字を返す
-        InputedNumberAndSymbol = string.Concat(calcItem.Select(x => x.Item1 + x.Item2)) + (inputProcess == "" ? "" : ToNumber(inputProcess));
-        return inputProcess == "" ? Calculator(calcItem) : ToNumber(inputProcess);
+        InputedNumberAndSymbol = GetInputedNumberAndSymbol(calcItem, inputProcess);
+        return IsInputFinished(inputProcess) ? Calculator(calcItem) : ToNumber(inputProcess);
     }
+
+    private static string GetInputedNumberAndSymbol(List<(decimal, string)> calcItem, string inputProcess)
+    {
+        var numberAndSymbol = string.Concat(calcItem.Select(x => x.Item1 + x.Item2));
+        var lastNumber = IsInputFinished(inputProcess) ? inputProcess : ToNumber(inputProcess).ToString();
+        return numberAndSymbol + lastNumber;
+    }
+
+    private static bool IsInputFinished(string inputProcess) => inputProcess == "";
 
     private static decimal ToNumber(string process)
         => decimal.Parse(process.Replace(PlusMinusSymbol, "")) * PlusMinus(process, PlusMinusSymbol);
@@ -122,7 +130,7 @@ public class Calc
     private static int PlusMinus(string s, string c)
         => (s.Length - s.Replace(c.ToString(), "").Length) % 2 == 0 ? 1 : -1;
 
-    private static decimal Calculator(List<Tuple<decimal, string>> calcItem)
+    private static decimal Calculator(List<(decimal, string)> calcItem)
     {
         string preOperator = "";
         decimal result = 0;
