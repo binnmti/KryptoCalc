@@ -35,6 +35,6 @@ public class CalculatorCalcTest
         }
 
         // Assert
-        Assert.AreEqual((decimal)expected, calc.CurrentInputNumber);
+        Assert.AreEqual((decimal)expected, calc.CurrentNumber);
     }
 }
