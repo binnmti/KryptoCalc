@@ -5,32 +5,42 @@
 
 public class Calc
 {
+    //value     入力した文字     数字と記号とそれ以外  1-0+-×÷=.C
+    //number    数字            0-9
+    //symbol    記号            +-×÷=±C
+    //operator  演算子          記号の一部(+-×÷=)
+    //formula   計算式          1+2×
     private const string PlusSymbol = "+";
     private const string MinusSymbol = "-";
     private const string MultiplySymbol = "×";
     private const string DivideSymbol = "÷";
     private const string EqualSymbol = "=";
-    private const string PlusMinusSymbol = "±";
     private const string ClearSymbol = "C";
     private const string DeleteSymbol = "☒";
+    private const string PramaiSymbol = "±"; //何処に挿入しても有効なので特殊処理が必要
 
+    //入力文字リスト
     private List<string> InputValueList { get; set; } = new();
 
     /// <summary>
-    /// 現在入力中の数字
+    /// 現在表示している数字（記号は含まない）
     /// </summary>
-    public decimal CurrentInputNumber { get; private set; }
+    public decimal CurrentNumber { get; private set; }
 
     /// <summary>
     /// 入力した計算式
     /// </summary>
-    public string InputedNumberAndSymbol { get; private set; } = string.Empty;
+    public string InputedFormula { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// 変更
+    /// </summary>
+    /// <param name="value"></param>
     public void Change(string value)
     {
         InputValueList.Clear();
         InputValueList.Add(value);
-        CurrentInputNumber = ToCurrentInputNumber(InputValueList);
+        CurrentNumber = ToCurrentNumber(InputValueList);
     }
 
     /// <summary>
@@ -43,22 +53,24 @@ public class Calc
         //未入力か確定の状態
         if (InputValueList.Count == 0)
         {
-            if (IsOperator(value) || value == PlusMinusSymbol)
+            //valueが演算子
+            if (IsOperator(value) || value == PramaiSymbol)
             {
-                //現在の数字をそのまま使用
-                foreach (var n in CurrentInputNumber.ToString())
-                {
-                    InputValueList.Add(n.ToString());
-                }
+                //現在の数字をそのまま入力文字リストに追加
+                InputValueList.AddRange(ToStrings(CurrentNumber));
             }
         }
-        //valueに演算子が2回連続
-        else if (InputValueList.Count > 1 && IsOperator(InputValueList[^1]) && IsOperator(value))
+        //入力中
+        else
         {
-            //1+=という入力は有効
-            if (value != EqualSymbol)
+            //valueが2回連続演算子
+            if (IsOperator(InputValueList[^1]) && IsOperator(value))
             {
-                InputValueList.RemoveAt(InputValueList.Count - 1);
+                //1+=という入力は有効
+                if (value != EqualSymbol)
+                {
+                    InputValueList.RemoveAt(InputValueList.Count - 1);
+                }
             }
         }
 
@@ -68,67 +80,51 @@ public class Calc
         }
         else if (IsEqualIgnoreCase(value, DeleteSymbol))
         {
-            if (InputValueList.Count != 0)
-            {
-                InputValueList.RemoveAt(InputValueList.Count - 1);
-            }
-            else
-            {
-                return CurrentInputNumber.ToString();
-            }
+            InputValueList.RemoveAt(InputValueList.Count - 1);
         }
         else
         {
             InputValueList.Add(value);
         }
 
-        CurrentInputNumber = ToCurrentInputNumber(InputValueList);
+        CurrentNumber = ToCurrentNumber(InputValueList);
         if(value == EqualSymbol)
         {
             InputValueList.Clear();
         }
-        return CurrentInputNumber.ToString();
+        return CurrentNumber.ToString();
     }
 
-    private decimal ToCurrentInputNumber(IEnumerable<string> inputList)
+    private decimal ToCurrentNumber(IEnumerable<string> inputList)
     {
         var calcItem = new List<(decimal, string)>();
-        var inputProcess = "";
+        var numberAndPramai = "";
         var numberPreOperator = 0m;
         foreach (var input in inputList)
         {
             if (IsOperator(input))
             {
-                var ope = input;
                 //演算子の前に入力された数字
-                if (inputProcess != "")
+                if (numberAndPramai != "")
                 {
-                    numberPreOperator = ToNumber(inputProcess);
+                    numberPreOperator = ToNumber(numberAndPramai);
                 }
-                calcItem.Add((numberPreOperator, ope));
-                inputProcess = "";
+                calcItem.Add((numberPreOperator, input));
+                numberAndPramai = "";
                 continue;
             }
-            inputProcess += input;
+            numberAndPramai += input;
         }
-        InputedNumberAndSymbol = GetInputedNumberAndSymbol(calcItem, inputProcess);
-        return IsInputFinished(inputProcess) ? Calculator(calcItem) : ToNumber(inputProcess);
+        InputedFormula = ToString(calcItem, numberAndPramai);
+        return IsEmpty(numberAndPramai) ? Calculator(calcItem) : ToNumber(numberAndPramai);
     }
 
-    private static string GetInputedNumberAndSymbol(List<(decimal, string)> calcItem, string inputProcess)
+    private static string ToString(List<(decimal, string)> calcItem, string numberAndPramai)
     {
         var numberAndSymbol = string.Concat(calcItem.Select(x => x.Item1 + x.Item2));
-        var lastNumber = IsInputFinished(inputProcess) ? inputProcess : ToNumber(inputProcess).ToString();
+        var lastNumber = IsEmpty(numberAndPramai) ? "" : ToNumber(numberAndPramai).ToString();
         return numberAndSymbol + lastNumber;
     }
-
-    private static bool IsInputFinished(string inputProcess) => inputProcess == "";
-
-    private static decimal ToNumber(string process)
-        => decimal.Parse(process.Replace(PlusMinusSymbol, "")) * PlusMinus(process, PlusMinusSymbol);
-
-    private static int PlusMinus(string s, string c)
-        => (s.Length - s.Replace(c.ToString(), "").Length) % 2 == 0 ? 1 : -1;
 
     private static decimal Calculator(List<(decimal, string)> calcItem)
     {
@@ -148,6 +144,20 @@ public class Calc
         }
         return result;
     }
+
+    //数字を一文字ずつのstringにして返す
+    private static IEnumerable<string> ToStrings(decimal currentNumber)
+        => currentNumber.ToString().Select(x => x.ToString());
+
+    private static bool IsEmpty(string numberAndPramai) => numberAndPramai == "";
+
+    //入力文字の±から1か-1をかけて±を消す
+    private static decimal ToNumber(string numberAndPramai)
+        => decimal.Parse(numberAndPramai.Replace(PramaiSymbol, "")) * Pramai(numberAndPramai);
+
+    //入力文字の±の数を数えて偶数なら1奇数なら-1を返す
+    private static int Pramai(string numberAndPramai)
+        => numberAndPramai.Count(s => s.ToString() == PramaiSymbol) % 2 == 0 ? 1 : -1;
 
     private static bool IsEqualIgnoreCase(string src, string dst)
         => string.Compare(src, dst, true) == 0;
