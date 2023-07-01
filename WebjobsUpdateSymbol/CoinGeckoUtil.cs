@@ -167,6 +167,11 @@ internal static class CoinGeckoUtil
         return priceList;
     }
 
+    //Must be between 1/1/1753 12:00:00 AM and 12/31/9999 11:59:59 PM.
+    private static DateTime MinDateTime = new DateTime(1800, 1, 1, 0, 0, 0);
+    private static DateTime? GetMinDateTime(DateTime? src)
+        => src?.Ticks > MinDateTime.Ticks ? src : MinDateTime;
+
     internal static async Task<List<CoinMarkets>> GetCoinMarketListAsync(HttpClient httpClient)
     {
         var coinMarkets = new List<CoinMarkets>();
@@ -185,16 +190,16 @@ internal static class CoinGeckoUtil
                 Symbol = x.symbol,
                 Ath = x.ath ?? default,
                 AthChangePercentage = x.ath_change_percentage ?? default,
-                AthDate = x.ath_date ?? default,
+                AthDate = GetMinDateTime(x.ath_date) ?? default,
                 Atl = x.atl ?? default,
                 Image = x.image,
-                AtlChangePercentage = x.atl_change_percentage ?? default,
-                AtlDate = x.atl_date ?? default,
+                AtlChangePercentage = x.atl_change_percentage == float.PositiveInfinity ? 0 : x.atl_change_percentage ?? default,
+                AtlDate = GetMinDateTime(x.atl_date) ?? default,
                 CirculatingSupply = x.circulating_supply ?? default,
                 CurrentPrice = x.current_price ?? default,
                 FullyDilutedValuation = x.fully_diluted_valuation ?? default,
                 High24h = x.high_24h ?? default,
-                LastUpdated = x.last_updated ?? default,
+                LastUpdated = GetMinDateTime(x.last_updated) ?? default,
                 Low24h = x.low_24h ?? default,
                 MarketCap = x.market_cap ?? default,
                 MarketCapChange24h = x.market_cap_change_24h ?? default,

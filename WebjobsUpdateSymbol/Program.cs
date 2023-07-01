@@ -22,8 +22,15 @@ var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, coinMarketList
 int co = 0;
 foreach (var coinMarket in coinMarketList)
 {
-    sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
-
+    try
+    {
+        sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
+    }
+    catch
+    {
+        Console.WriteLine($"coinMarket.AthDate = {coinMarket.AthDate}"); 
+        throw;
+    }
     Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
     Thread.Sleep(1);
 }
