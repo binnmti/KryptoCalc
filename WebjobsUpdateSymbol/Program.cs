@@ -11,33 +11,57 @@ var builder = new ConfigurationBuilder().AddEnvironmentVariables();
 if (isDevelopment) builder.AddUserSecrets<Program>();
 var Configuration = builder.Build();
 var connectionString = Configuration["ConnectionStrings:KryptoCalcServerContext"];
-
+var discordBotToken = Configuration["ConnectionStrings:DiscordBotToken"];
+ulong.TryParse(Configuration["ConnectionStrings:DiscordChannelId"], out var discordChannelId);
 using var httpClient = new HttpClient();
 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36");
 
-using var sqlConnection = new SqlConnection(connectionString);
-
-var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
-var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, coinMarketList.Select(x => x.Id).ToList());
-int co = 0;
-foreach (var coinMarket in coinMarketList)
+try
 {
-    try
-    {
-        sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
-    }
-    catch
-    {
-        Console.WriteLine($"coinMarket.AthDate = {coinMarket.AthDate}"); 
-        throw;
-    }
-    Console.WriteLine($"{co++}/{coinMarketList.Count}:{coinMarket.Id}");
-    Thread.Sleep(1);
+    await Run();
 }
-foreach (var price in priceList)
+catch(Exception ex)
 {
-    sqlConnection.Insert(price, "Id", price.Id);
+    await DiscordBotUtil.SendMessageAsync(discordBotToken, discordChannelId, ex.Message);
+    throw;
+}
 
-    Console.WriteLine($"{co++}/{priceList.Count}:{price.Id}");
-    Thread.Sleep(1);
+async Task Run()
+{
+    using var sqlConnection = new SqlConnection(connectionString);
+    var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
+    var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, coinMarketList.Select(x => x.Id).ToList());
+    int co = 0;
+    foreach (var coinMarket in coinMarketList)
+    {
+        try
+        {
+            sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
+        }
+        catch
+        {
+            var values = string.Concat(string.Join(",", coinMarket.GetType().GetProperties().Select(x => x.GetValue(coinMarket).ToString())));
+            Console.WriteLine($"values = {values}");
+            throw;
+        }
+        Console.WriteLine($"CoinMarket:{co++}/{coinMarketList.Count}:{coinMarket.Id}");
+        Thread.Sleep(1);
+    }
+    co = 0;
+    foreach (var price in priceList)
+    {
+        try
+        {
+            sqlConnection.Insert(price, "Id", price.Id);
+        }
+        catch
+        {
+            var values = string.Concat(string.Join(",", price.GetType().GetProperties().Select(x => x.GetValue(price).ToString())));
+            Console.WriteLine($"values = {values}");
+            throw;
+        }
+        Console.WriteLine($"Price:{co++}/{priceList.Count}:{price.Id}");
+        Thread.Sleep(1);
+    }
+
 }
