@@ -30,7 +30,8 @@ async Task Run()
 {
     using var sqlConnection = new SqlConnection(connectionString);
     var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
-    var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, coinMarketList.Select(x => x.Id).ToList());
+    var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, 
+        coinMarketList.Where(x => x.MarketCapRank != 0).Select(x => x.Id).ToList());
     int co = 0;
     foreach (var coinMarket in coinMarketList)
     {
