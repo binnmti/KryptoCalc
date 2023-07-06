@@ -4,7 +4,7 @@
 public class CalculatorCalcTest
 {
     [TestMethod]
-    public void AAA()
+    public void TestTest()
     {
         var c = CurrencyList.GetCurrencyCoinMarkets();
     }

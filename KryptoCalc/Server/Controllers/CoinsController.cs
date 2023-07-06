@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using KryptoCalc.Server.Data;
 using KryptoCalc.Shared;
-using System.Linq;
 
 namespace KryptoCalc.Server.Controllers;
 
