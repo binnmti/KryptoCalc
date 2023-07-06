@@ -74,7 +74,17 @@
                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         </div>
                         <div>
+                            <select id="@CurrentLegalCurrency.Id" class="form-control form-control-sm" @onchange="@OnChangeDisplayType">
+                                @{
+                                    foreach (var legalCurrencyList in LegalCurrencyList)
+                                    {
+                                        <option value=@(legalCurrencyList.Id) selected="@(CurrentLegalCurrency.Id == legalCurrencyList.Id)">@legalCurrencyList.Id</option>
+                                    }
+                                }
+                            </select>
+
                         @*
+                    
                             <select id="@DisplayType.Id" class="form-control form-control-sm" @onchange="@OnChangeDisplayType">
                             @{
                                 foreach (var item in DisplayType.Items)
@@ -100,12 +110,12 @@
                                                         <span>@CurrentCoinMarketView.Name</span>
                                                     </div>
                                                     <div class="col text-truncate">
-                                                        <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)yen</span>
+                                                        <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col text-truncate">
-                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentCoinMarketView.Symbol</span>
+                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentLegalCurrency.Symbol</span>
                                                     </div>
                                                 </div>
                                             }
@@ -120,11 +130,18 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col text-truncate">
-                                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                            @if (coinMarketView.Id == CurrentCoinMarketView.Id)
+                                                            {
+                                                                @coinMarketView.Image
+                                                            }
+                                                            else
+                                                            {
+                                                                <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                            }
                                                             <span>@coinMarketView.Name</span>
                                                         </div>
                                                         <div class="col text-truncate">
-                                                            <span>@coinMarketView.InputPrice @coinMarketView.Symbol</span>
+                                                            <span>@coinMarketView.InputPrice @CurrentLegalCurrency.Symbol</span>
                                                         </div>
                                                     </div>
                                                 }
@@ -132,11 +149,18 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col text-truncate">
-                                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                            @if (coinMarketView.Id == "jpy")
+                                                            {
+                                                                @coinMarketView.Image
+                                                            }
+                                                            else
+                                                            {
+                                                                <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
+                                                            }
                                                             <span>@coinMarketView.Name</span>
                                                         </div>
                                                         <div class="col text-truncate">
-                                                            <span>1@(coinMarketView.Symbol) = @(coinMarketView.CurrentPrice)yen</span>
+                                                            <span>1@(coinMarketView.Symbol) = @(coinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
                                                         </div>
                                                     </div>
                                                     <div class="row">
@@ -178,6 +202,8 @@
     private Calc Calc = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
     private List<CoinMarketView> CoinMarketView = new();
+    private CoinMarkets CurrentLegalCurrency;
+    private List<CoinMarkets> LegalCurrencyList = new();
     private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
     private IViewSelect DisplayType = new DisplayType();
@@ -247,10 +273,13 @@
     }
 
     protected override async Task OnInitializedAsync()
-    {   
+    {
+        LegalCurrencyList = CurrencyList.GetCurrencyCoinMarkets();
+        CurrentLegalCurrency = LegalCurrencyList.First();
+
         //TODO:直値
         _currentSymbol = await cookie.GetValue("symbol");
-        if (_currentSymbol == "") _currentSymbol = "yen";
+        if (_currentSymbol == "") _currentSymbol = CurrentLegalCurrency.Id;
 
         var displayType = await cookie.GetValue("DisplayType");
         if (displayType == "") displayType = DisplayType.Default;

@@ -4,6 +4,12 @@
 public class CalculatorCalcTest
 {
     [TestMethod]
+    public void AAA()
+    {
+        var c = CurrencyList.GetCurrencyCoinMarkets();
+    }
+
+    [TestMethod]
     [DataRow(new[] { "1", "+", "×", "2", "=", "±" }, -2)]
     [DataRow(new[] { "1", "+", "×", "2", "=" }, 2)]
     [DataRow(new[] { "1", "+", "+", "2", "=" }, 3)]

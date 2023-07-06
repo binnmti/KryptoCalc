@@ -2,8 +2,8 @@
 
 public record CoinMarketView(
     string Id,
-    string Name,
     string Symbol,
+    string Name,
     string Image,
     decimal CurrentPrice,
     decimal InputPrice

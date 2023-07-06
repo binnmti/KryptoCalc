@@ -6,8 +6,8 @@ public static class CoinMarketConvert
         => coinMarkets
             .Select(x => new CoinMarketView(
                 x.Id,
-                x.Name,
                 x.Symbol,
+                x.Name,
                 x.Image,
                 x.CurrentPrice,
                 GetCoinPrice(price, newSymbol,currentPrice, x.Id, x.CurrentPrice)));
