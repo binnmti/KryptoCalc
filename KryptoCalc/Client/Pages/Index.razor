@@ -275,11 +275,13 @@
     protected override async Task OnInitializedAsync()
     {
         LegalCurrencyList = CurrencyList.GetCurrencyCoinMarkets();
-        CurrentLegalCurrency = LegalCurrencyList.First();
 
-        //TODO:直値
         _currentSymbol = await cookie.GetValue("symbol");
-        if (_currentSymbol == "") _currentSymbol = CurrentLegalCurrency.Id;
+        if (_currentSymbol == "")
+        {
+            _currentSymbol = CurrencyList.GetCurrentId();
+        }
+        CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == _currentSymbol);
 
         var displayType = await cookie.GetValue("DisplayType");
         if (displayType == "") displayType = DisplayType.Default;

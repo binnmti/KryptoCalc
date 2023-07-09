@@ -1,9 +1,17 @@
 ﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace KryptoCalc.Shared;
 
 public static class CurrencyList
 {
+    public static string GetCurrentId()
+    {
+        var name = CultureInfo.CurrentCulture.IetfLanguageTag;
+        var regionInfo = new RegionInfo(name);
+        return regionInfo.ISOCurrencySymbol.ToLower();
+    }
+
     public static List<CoinMarkets> GetCurrencyCoinMarkets()
     {
         var regionInfos = GetRegionInfo();

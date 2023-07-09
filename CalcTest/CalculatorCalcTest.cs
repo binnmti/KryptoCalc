@@ -6,7 +6,7 @@ public class CalculatorCalcTest
     [TestMethod]
     public void TestTest()
     {
-        var c = CurrencyList.GetCurrencyCoinMarkets();
+        var c = CurrencyList.GetCurrentName();
     }
 
     [TestMethod]
