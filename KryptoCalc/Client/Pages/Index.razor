@@ -27,7 +27,14 @@
             <div class="row">
                 <div class="col text-end">
                     <div>
-                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                        @if (CurrentLegalCurrency.Id == CurrentCoinMarketView.Id)
+                        {
+                            @CurrentCoinMarketView.Image
+                        }
+                        else
+                        {
+                            <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                        }
                         <input value="@CurrentCoinMarketView.Name" readonly>
                     </div>
                 </div>
@@ -74,7 +81,7 @@
                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         </div>
                         <div>
-                            <select id="@CurrentLegalCurrency.Id" class="form-control form-control-sm" @onchange="@OnChangeDisplayType">
+                            <select id="@CurrentLegalCurrency.Id" class="form-control form-control-sm" @onchange="@OnChangeCurrency">
                                 @{
                                     foreach (var legalCurrencyList in LegalCurrencyList)
                                     {
@@ -106,7 +113,14 @@
                                             {
                                                 <div class="row">
                                                     <div class="col text-truncate fw-bold">
-                                                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                                                        @if (CurrentLegalCurrency.Id == CurrentCoinMarketView.Id)
+                                                        {
+                                                            @CurrentCoinMarketView.Image
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                                                        }
                                                         <span>@CurrentCoinMarketView.Name</span>
                                                     </div>
                                                     <div class="col text-truncate">
@@ -130,7 +144,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col text-truncate">
-                                                            @if (coinMarketView.Id == CurrentCoinMarketView.Id)
+                                                            @if (coinMarketView.Id == CurrentLegalCurrency.Id)
                                                             {
                                                                 @coinMarketView.Image
                                                             }
@@ -149,7 +163,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col text-truncate">
-                                                            @if (coinMarketView.Id == "jpy")
+                                                            @if (coinMarketView.Id == CurrentCoinMarketView.Id)
                                                             {
                                                                 @coinMarketView.Image
                                                             }
@@ -196,13 +210,14 @@
 
 @code {
     private string _currentSymbol = "";
+    private string _currentCurrency = "";
     private int _pageNumer = 0;
     private int _displayType = 0;
     private readonly int _displayNumber = 10;
     private Calc Calc = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
     private List<CoinMarketView> CoinMarketView = new();
-    private CoinMarkets CurrentLegalCurrency;
+    private CoinMarkets CurrentLegalCurrency = new("", "", "", "", 0);
     private List<CoinMarkets> LegalCurrencyList = new();
     private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
@@ -216,12 +231,40 @@
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
+    private async Task SetNewCurrencyAsync(string newCurrency)
+    {
+        //CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == newCurrency);
+        _currentSymbol = newCurrency;
+        //Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
+        await cookie.SetValue("currency", _currentSymbol);
+    }
+
+    //private async Task ChangeCurrency(string page, string displayType)
+    //{
+    //    _currentSymbol = await cookie.GetValue("symbol");
+    //    if (_currentSymbol == "")
+    //    {
+    //        _currentSymbol = CurrencyList.GetCurrentId();
+    //    }
+    //    CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == _currentSymbol);
+
+    //    //DisplayType.Value = displayType;
+    //    //CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}") ?? new List<CoinMarketView>();
+    //    //var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
+    //    //await cookie.SetValue("DisplayType", DisplayType.Value);
+    //    //CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
+    //    //PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
+    //    StateHasChanged();
+    //}
+
+
+
     private async Task ChangeDisplayNumber(string page, string displayType)
     {
         _pageNumer = int.Parse(page);
         _displayType = int.Parse(displayType);
         DisplayType.Value = displayType;
-        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}") ?? new List<CoinMarketView>();
+        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}&id={CurrentLegalCurrency.Id}") ?? new List<CoinMarketView>();
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
         await cookie.SetValue("DisplayType", DisplayType.Value);
         CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
@@ -245,6 +288,12 @@
         var count = query["count"]?.ToString() ?? "";
         await ChangeDisplayNumber(page, count);
         StateHasChanged();
+    }
+
+    private async void OnChangeCurrency(ChangeEventArgs eventArgs)
+    {
+        var newCurrency = eventArgs?.Value?.ToString() ?? "";
+        await SetNewCurrencyAsync(newCurrency);
     }
 
     private async void OnChangeDisplayType(ChangeEventArgs eventArgs)
@@ -276,10 +325,15 @@
     {
         LegalCurrencyList = CurrencyList.GetCurrencyCoinMarkets();
 
+        _currentCurrency= await cookie.GetValue("currency");
+        if (_currentCurrency == "")
+        {
+            _currentCurrency = LegalCurrencyList.First().Id;
+        }
         _currentSymbol = await cookie.GetValue("symbol");
         if (_currentSymbol == "")
         {
-            _currentSymbol = CurrencyList.GetCurrentId();
+            _currentSymbol = _currentCurrency;
         }
         CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == _currentSymbol);
 
@@ -288,6 +342,7 @@
 
         await ChangeDisplayNumber("1", displayType);
         await SetNewSymbolAsync(_currentSymbol);
+        await SetNewCurrencyAsync(_currentCurrency);
 
         HotKeysContext = HotKeys.CreateContext()
         .Add(Key.Num0, () => OnCalcButtonClick("0"))

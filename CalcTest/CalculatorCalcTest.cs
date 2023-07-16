@@ -6,7 +6,11 @@ public class CalculatorCalcTest
     [TestMethod]
     public void TestTest()
     {
-        var c = CurrencyList.GetCurrentName();
+        var nums = new List<int> { 1, 2, 2, 4, 6, 6, 6, 8, 9 };
+        var result = Enumerable.Range(1, nums.Count).Where(x => nums.All(n => x != n));
+
+
+        var c = CurrencyList.GetCurrentId();
     }
 
     [TestMethod]
