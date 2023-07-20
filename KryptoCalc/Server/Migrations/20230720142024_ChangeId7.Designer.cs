@@ -4,6 +4,7 @@ using KryptoCalc.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KryptoCalc.Server.Migrations
 {
     [DbContext(typeof(KryptoCalcServerContext))]
-    partial class KryptoCalcServerContextModelSnapshot : ModelSnapshot
+    [Migration("20230720142024_ChangeId7")]
+    partial class ChangeId7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,11 +145,11 @@ namespace KryptoCalc.Server.Migrations
 
             modelBuilder.Entity("KryptoCalc.Shared.Price", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PriceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PriceId"));
 
                     b.Property<decimal>("Aed")
                         .HasColumnType("decimal(20,4)");
@@ -183,11 +186,6 @@ namespace KryptoCalc.Server.Migrations
 
                     b.Property<decimal>("Cny")
                         .HasColumnType("decimal(20,4)");
-
-                    b.Property<string>("CoinMarketsId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime2");
@@ -309,7 +307,7 @@ namespace KryptoCalc.Server.Migrations
                     b.Property<decimal>("Zar")
                         .HasColumnType("decimal(20,4)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PriceId");
 
                     b.ToTable("Price");
                 });

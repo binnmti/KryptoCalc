@@ -95,7 +95,8 @@ internal static class CoinGeckoUtil
     private static Price GetPrice(JsonNode? jsonNode, string id)
         => new()
         {
-            Id = id,
+            Id = 0,
+            CoinMarketsId = id,
             Aed = ToDecimal(jsonNode, id, "aed"),
             Ars = ToDecimal(jsonNode, id, "ars"),
             Aud = ToDecimal(jsonNode, id, "ars"),

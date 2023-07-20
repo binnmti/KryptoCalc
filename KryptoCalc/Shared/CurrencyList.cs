@@ -4,13 +4,6 @@ namespace KryptoCalc.Shared;
 
 public static class CurrencyList
 {
-    public static string GetCurrentId()
-    {
-        var name = RegionInfo.CurrentRegion.TwoLetterISORegionName;
-        var regionInfo = new RegionInfo(name);
-        return regionInfo.ISOCurrencySymbol.ToLower();
-    }
-
     public static List<CoinMarkets> GetCurrencyCoinMarkets()
     {
         var regionInfos = GetRegionInfo();
@@ -38,7 +31,6 @@ public static class CurrencyList
         return new CoinMarkets(id, regionInfo.ISOCurrencySymbol.ToLower(), regionInfo.CurrencyNativeName, IsoCountryCodeToFlagEmoji(regionInfo.TwoLetterISORegionName), 1);
     }
 
-
     private static List<RegionInfo> GetRegionInfo()
     {
         List<RegionInfo> countries = new List<RegionInfo>();
@@ -61,7 +53,6 @@ public static class CurrencyList
         return string.Concat(country.ToUpper().Select(x => char.ConvertFromUtf32(x + 0x1F1A5)));
     }
 
-    //CoinMarkets
     private static readonly List<string> CurrencyIdList = new List<string>()
     {
       "usd",

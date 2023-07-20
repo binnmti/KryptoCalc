@@ -53,7 +53,7 @@ async Task Run()
     {
         try
         {
-            sqlConnection.Insert(price, "Id", price.Id);
+            sqlConnection.Insert(price);
         }
         catch
         {

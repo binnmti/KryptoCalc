@@ -4,6 +4,7 @@ using KryptoCalc.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KryptoCalc.Server.Migrations
 {
     [DbContext(typeof(KryptoCalcServerContext))]
-    partial class KryptoCalcServerContextModelSnapshot : ModelSnapshot
+    [Migration("20230720144143_ChangeId8")]
+    partial class ChangeId8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -33,23 +33,6 @@ public class CoinsController : ControllerBase
         return coinMarkets;
     }
 
-
-    //[Route("/coinMarkets")]
-    //public async Task<IEnumerable<CoinMarkets>> CoinMarkets(int page, int count)
-    //{
-    //    var coinMarkets = new List<CoinMarkets>();
-    //    //TODO:右上には1yen だけでなく入力値も出す
-    //    if (page == 1)
-    //    {
-    //        var coinMarket = CurrencyList.GetCoinMarkets("jpy");
-    //        coinMarkets.Add(coinMarket);
-    //    }
-    //    var skip = (Math.Max(page, 1) - 1) * count;
-    //    var take = count == -1 ? int.MaxValue : count;
-    //    coinMarkets.AddRange(GetCoinMarkets(skip, take));
-    //    return coinMarkets;
-    //}
-
     [Route("/coinMarketsCount")]
     public async Task<int> CoinMarketsCount()
         => await _context.CoinMarkets.Where(x => x.MarketCapRank != 0).CountAsync();
@@ -87,11 +70,4 @@ public class CoinsController : ControllerBase
                         offset {skip} rows FETCH NEXT {take} ROWS ONLY";
         return  _context.CoinMarkets.FromSql(FormattableStringFactory.Create(query));
     }
-}
-
-static class StringExtensions
-{
-    public static bool ContainsAny(this string str, IEnumerable<string> needles) => str != null ? needles.Any(str.Contains) : false;
-
-    public static bool ContainsAny(this string str, params string[] needles) => str.ContainsAny(needles.AsEnumerable());
 }

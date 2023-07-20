@@ -17,12 +17,8 @@ public static class SqlConnectionExtention
         sqlConnection.Execute(sql, param);
     }
 
-    public static void Insert<T>(this SqlConnection sqlConnection, T data, string selectName, string selectValue)
+    public static void Insert<T>(this SqlConnection sqlConnection, T data)
     {
-        if (data == null) return;
-        var single = sqlConnection.Query<T>($"select * from [{typeof(T).Name}] Where {selectName} = '{selectValue}'").SingleOrDefault();
-        if (single != null) return;
-
         var properties = data.GetType().GetProperties();
         var (sql, param) = (data.GetInsertSql(properties), data.GetParam(properties));
         sqlConnection.Execute(sql, param);
