@@ -27,7 +27,7 @@ jobs:
     - name: Restore local tools
       run: dotnet tool restore
     - name: Generate code coverage Markdown report
-      run: dotnet reportgenerator -reports:**/coverage.cobertura.xml -targetdir:./coverage -reporttypes:MarkdownSummary
+      run: reportgenerator -reports:**/coverage.cobertura.xml -targetdir:./coverage -reporttypes:MarkdownSummary
     - name: Create check run with code coverage Markdown report
       uses: LouisBrunner/checks-action@v1.2.0
       if: always()
