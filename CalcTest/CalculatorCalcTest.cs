@@ -6,6 +6,8 @@ public class CalculatorCalcTest
     [TestMethod]
     public void TestTest()
     {
+        bool expected = false;
+        Assert.IsTrue(expected);
     }
 
     [TestMethod]
