@@ -23,7 +23,7 @@ jobs:
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
     - name: Test
-      run: dotnet test KryptoCalc.sln --no-build --logger trx --collect:"XPlat Code Coverage"
+      run: dotnet test KryptoCalc.sln --logger trx --collect:"XPlat Code Coverage"
     - name: Restore local tools
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
     - name: Generate code coverage Markdown report
