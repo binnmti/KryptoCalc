@@ -19,7 +19,8 @@ public static class SqlConnectionExtention
 
     public static void Insert<T>(this SqlConnection sqlConnection, T data)
     {
-        var properties = data.GetType().GetProperties();
+        //TODO:Idがintの場合はSkipするみたいな感じがベター
+        var properties = data.GetType().GetProperties().Skip(1);
         var (sql, param) = (data.GetInsertSql(properties), data.GetParam(properties));
         sqlConnection.Execute(sql, param);
     }
