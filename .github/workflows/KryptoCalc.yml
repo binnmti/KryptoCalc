@@ -1,4 +1,4 @@
-name: .NET Core アプリケーションを構築して Web アプリ KryptoCalc にデプロイする
+name: CI/CD
 on:
   push:
     branches:
