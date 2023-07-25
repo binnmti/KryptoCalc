@@ -233,31 +233,9 @@
 
     private async Task SetNewCurrencyAsync(string newCurrency)
     {
-        //CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == newCurrency);
         _currentSymbol = newCurrency;
-        //Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
         await cookie.SetValue("currency", _currentSymbol);
     }
-
-    //private async Task ChangeCurrency(string page, string displayType)
-    //{
-    //    _currentSymbol = await cookie.GetValue("symbol");
-    //    if (_currentSymbol == "")
-    //    {
-    //        _currentSymbol = CurrencyList.GetCurrentId();
-    //    }
-    //    CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == _currentSymbol);
-
-    //    //DisplayType.Value = displayType;
-    //    //CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}") ?? new List<CoinMarketView>();
-    //    //var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
-    //    //await cookie.SetValue("DisplayType", DisplayType.Value);
-    //    //CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
-    //    //PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
-    //    StateHasChanged();
-    //}
-
-
 
     private async Task ChangeDisplayNumber(string page, string displayType)
     {
@@ -294,6 +272,10 @@
     {
         var newCurrency = eventArgs?.Value?.ToString() ?? "";
         await SetNewCurrencyAsync(newCurrency);
+
+        CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == newCurrency);
+        var displayType = await cookie.GetValue("DisplayType");
+        await ChangeDisplayNumber("1", displayType);
     }
 
     private async void OnChangeDisplayType(ChangeEventArgs eventArgs)
