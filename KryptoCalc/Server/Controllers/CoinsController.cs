@@ -40,34 +40,39 @@ public class CoinsController : ControllerBase
     private IQueryable<CoinMarkets> GetCoinMarkets(int skip, int take, string id)
     {
         //Price.{id}の部分がメソッド式に出来ないの理由
-        var query = @$"select [CoinMarkets].Id,
-                        CoinMarkets.Symbol,
-                        CoinMarkets.Name,
-                        CoinMarkets.Image,
-                        CAST(Price.{id} AS real) as CurrentPrice,                        
-                        CoinMarkets.MarketCap,
-                        CoinMarkets.MarketCapRank,
-                        CoinMarkets.FullyDilutedValuation,
-                        CoinMarkets.TotalVolume,
-                        CoinMarkets.High24h,
-                        CoinMarkets.Low24h,
-                        CoinMarkets.PriceChange24h,
-                        CoinMarkets.PriceChangePercentage24h,
-                        CoinMarkets.MarketCapChange24h,
-                        CoinMarkets.MarketCapChangePercentage24h,
-                        CoinMarkets.CirculatingSupply,
-                        CoinMarkets.TotalSupply,
-                        CoinMarkets.MaxSupply,
-                        CoinMarkets.Ath,
-                        CoinMarkets.AthChangePercentage,
-                        CoinMarkets.AthDate,
-                        CoinMarkets.Atl,
-                        CoinMarkets.AtlDate,
-                        CoinMarkets.AtlChangePercentage,
-                        CoinMarkets.LastUpdated
-                        from [CoinMarkets] inner join Price on [CoinMarkets].Id = Price.Id
-                        where MarketCapRank != 0 order by MarketCapRank
-                        offset {skip} rows FETCH NEXT {take} ROWS ONLY";
-        return  _context.CoinMarkets.FromSql(FormattableStringFactory.Create(query));
+        var query = @$"select
+	                    CoinMarkets.Id,
+	                    CoinMarkets.Symbol,
+	                    CoinMarkets.Name,
+	                    CoinMarkets.Image,
+	                    CAST(latestPrice.{id} AS real) as CurrentPrice,                        
+	                    CoinMarkets.MarketCap,
+	                    CoinMarkets.MarketCapRank,
+	                    CoinMarkets.FullyDilutedValuation,
+	                    CoinMarkets.TotalVolume,
+	                    CoinMarkets.High24h,
+	                    CoinMarkets.Low24h,
+	                    CoinMarkets.PriceChange24h,
+	                    CoinMarkets.PriceChangePercentage24h,
+	                    CoinMarkets.MarketCapChange24h,
+	                    CoinMarkets.MarketCapChangePercentage24h,
+	                    CoinMarkets.CirculatingSupply,
+	                    CoinMarkets.TotalSupply,
+	                    CoinMarkets.MaxSupply,
+	                    CoinMarkets.Ath,
+	                    CoinMarkets.AthChangePercentage,
+	                    CoinMarkets.AthDate,
+	                    CoinMarkets.Atl,
+	                    CoinMarkets.AtlDate,
+	                    CoinMarkets.AtlChangePercentage,
+	                    CoinMarkets.LastUpdated
+                    from
+                      [CoinMarkets]
+                      inner join
+                      (select * from ( select *, row_number() over ( partition by CoinMarketsId order by Id desc ) ranking from Price) _ where ranking = 1) latestPrice
+                      on [CoinMarkets].id = latestPrice.CoinMarketsId
+                      where MarketCapRank != 0 order by MarketCapRank
+                      offset {skip} rows FETCH NEXT {take} ROWS ONLY;";
+        return _context.CoinMarkets.FromSql(FormattableStringFactory.Create(query));
     }
 }
