@@ -1,26 +1,17 @@
-﻿using System.Globalization;
-using System.Linq;
-
-namespace KryptoCalc.Shared;
+﻿namespace KryptoCalc.Shared;
 
 public static class CurrencyList
 {
     public static List<CoinMarkets> GetCurrencyCoinMarkets()
-    {
-        return Currencys.Select(x => new CoinMarkets(
+        => Currencys.Select(x => new CoinMarkets(
             x.SymbolId,
             x.JapanSymbol,
             x.JapanCountry,
             $"img/{x.SymbolId}.png",
             1)).ToList();
-    }
 
-    //Countryクラス的なのを作ってそこに項目を入れる
     public static CoinMarkets GetCoinMarkets(string id)
-    {
-        return GetCurrencyCoinMarkets().Single(x => x.Id == id);
-    }
-
+        => GetCurrencyCoinMarkets().Single(x => x.Id == id);
 
     private record Currency(
         string SymbolId,
@@ -85,58 +76,4 @@ public static class CurrencyList
           new Currency("VND", "Vietnamese Dong", "Vietnam", "ベトナム", "ドン"),
           new Currency("ZAR", "South African Rand", "South Africa", "南アフリカ", "ランド"),
   };
-
-    //private static readonly List<string> CurrencyIdList = new List<string>()
-    //{
-    //  "usd",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  "",
-    //  //"",
-    //  "",
-    //  "",
-    //  //"xdr",
-    //  //"xag",
-    //  //"xau",
-    //  //"bits",
-    //  //"sats"
-    //};
 }
