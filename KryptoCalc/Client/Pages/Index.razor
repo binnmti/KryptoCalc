@@ -27,14 +27,7 @@
             <div class="row">
                 <div class="col text-end">
                     <div>
-                        @if (CurrentLegalCurrency.Id == CurrentCoinMarketView.Id)
-                        {
-                            @CurrentCoinMarketView.Image
-                        }
-                        else
-                        {
-                            <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
-                        }
+                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
                         <input value="@CurrentCoinMarketView.Name" readonly>
                     </div>
                 </div>
@@ -113,14 +106,7 @@
                                             {
                                                 <div class="row">
                                                     <div class="col text-truncate fw-bold">
-                                                        @if (CurrentLegalCurrency.Id == CurrentCoinMarketView.Id)
-                                                        {
-                                                            @CurrentCoinMarketView.Image
-                                                        }
-                                                        else
-                                                        {
-                                                            <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
-                                                        }
+                                                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
                                                         <span>@CurrentCoinMarketView.Name</span>
                                                     </div>
                                                     <div class="col text-truncate">
@@ -144,14 +130,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col text-truncate">
-                                                            @if (coinMarketView.Id == CurrentLegalCurrency.Id)
-                                                            {
-                                                                @coinMarketView.Image
-                                                            }
-                                                            else
-                                                            {
-                                                                <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                                                            }
+                                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
                                                             <span>@coinMarketView.Name</span>
                                                         </div>
                                                         <div class="col text-truncate">
@@ -163,14 +142,7 @@
                                                 {
                                                     <div class="row">
                                                         <div class="col text-truncate">
-                                                            @if (coinMarketView.Id == CurrentCoinMarketView.Id)
-                                                            {
-                                                                @coinMarketView.Image
-                                                            }
-                                                            else
-                                                            {
-                                                                <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
-                                                            }
+                                                            <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
                                                             <span>@coinMarketView.Name</span>
                                                         </div>
                                                         <div class="col text-truncate">
@@ -299,7 +271,7 @@
     {
         Calc.Input(str);
         CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
-        CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == _currentSymbol);
+        CurrentCoinMarketView = CoinMarketView.Single(x => string.Compare(x.Id, _currentSymbol, true) == 0);
         StateHasChanged();
     }
 
@@ -307,7 +279,7 @@
     {
         LegalCurrencyList = CurrencyList.GetCurrencyCoinMarkets();
 
-        _currentCurrency= await cookie.GetValue("currency");
+        _currentCurrency = await cookie.GetValue("currency");
         if (_currentCurrency == "")
         {
             _currentCurrency = LegalCurrencyList.First().Id;
@@ -317,7 +289,7 @@
         {
             _currentSymbol = _currentCurrency;
         }
-        CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == _currentSymbol);
+        CurrentLegalCurrency = LegalCurrencyList.Single(x => string.Compare(x.Id,_currentCurrency, true) == 0);
 
         var displayType = await cookie.GetValue("DisplayType");
         if (displayType == "") displayType = DisplayType.Default;

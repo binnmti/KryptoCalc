@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 
 namespace KryptoCalc.Shared;
 
@@ -6,104 +7,136 @@ public static class CurrencyList
 {
     public static List<CoinMarkets> GetCurrencyCoinMarkets()
     {
-        var regionInfos = GetRegionInfo();
-        var coinMarkets = new List<CoinMarkets>();
-        foreach (var id in CurrencyIdList)
-        {
-            try
-            {
-                var regionInfo = regionInfos.First(x => string.Compare(x.ISOCurrencySymbol, id, true) == 0);
-                var coinMarket = new CoinMarkets(id, regionInfo.ISOCurrencySymbol.ToLower(), regionInfo.CurrencyNativeName, IsoCountryCodeToFlagEmoji(regionInfo.TwoLetterISORegionName), 1);
-                coinMarkets.Add(coinMarket);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(id + ":" + ex.ToString());
-            }
-        }
-        return coinMarkets;
+        return Currencys.Select(x => new CoinMarkets(
+            x.SymbolId,
+            x.JapanSymbol,
+            x.JapanCountry,
+            $"img/{x.SymbolId}.png",
+            1)).ToList();
     }
 
     //Countryクラス的なのを作ってそこに項目を入れる
     public static CoinMarkets GetCoinMarkets(string id)
     {
-        var regionInfo = GetRegionInfo().SingleOrDefault(x => string.Compare(x.ISOCurrencySymbol, id, true) == 0);
-        return new CoinMarkets(id, regionInfo.ISOCurrencySymbol.ToLower(), regionInfo.CurrencyNativeName, IsoCountryCodeToFlagEmoji(regionInfo.TwoLetterISORegionName), 1);
+        return GetCurrencyCoinMarkets().Single(x => x.Id == id);
     }
 
-    private static List<RegionInfo> GetRegionInfo()
+
+    private record Currency(
+        string SymbolId,
+        string Name,
+        string Country,
+        string JapanCountry,
+        string JapanSymbol);
+
+    private static List<Currency> Currencys = new List<Currency>()
     {
-        List<RegionInfo> countries = new List<RegionInfo>();
+        //Currency
+        //https://learn.microsoft.com/en-us/dotnet/api/system.globalization.regioninfo.isocurrencysymbol?view=net-7.0
+        //Languase
+        //https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c?redirectedfrom=MSDN
+        //Flag
+        //https://flagdownload.com/
+        //日本語
+        //https://fxtop.com/jp/countries-currencies.php
+        new Currency("JPY", "Japanese Yen", "Japan","日本", "円"),
+        new Currency("USD", "US Dollar", "United States", "アメリカ", "米ドル"),
+        new Currency("AED", "UAE Dirham", "United Arab Emirates", "アラブ首長国連邦", "ディルハム"),
+        new Currency("ARS", "Argentine Peso", "Argentina", "アルゼンチン", "ペソ"),
+        new Currency("AUD", "Australian Dollar", "Australia", "オーストラリア", "ドル"),
+        new Currency("BDT", "BDT Bangladeshi taka", "Banglades", "バングラディッシュ", "タカ"),
+        new Currency("BHD", "Bahraini Dinar", "Bahrain", "バーレーン", "ディナール"),
+        new Currency("BMD", "BMD Bermudian dollar", "Bermuda", "バーミューダ", "ドル"),
+         new Currency("BRL", "Real", "Brazil", "ブラジル", "レアル"),
+         new Currency("CAD", "Canadian Dollar", "Canada", "カナダ", "ドル"),
+         new Currency("CHF", "Swiss Franc", "Switzerland", "スイス", "フラン"),
+         new Currency("CLP", "Chilean Peso", "Chile", "チリ", "ペソ"),
+         new Currency("CNY", "PRC Renminbi", "People's Republic of China", "中国", "人民元"),
+         new Currency("CZK", "Czech Koruna", "Czech Republic", "チェコ", "コルナ"),
+         new Currency("DKK", "Danish Krone", "Denmark", "デンマーク", "クローネ"),
+         //new RegionCurrency("EUR", "Euro", "", "", "ユーロ"),
+         new Currency("GBP", "UK Pound Sterling", "United Kingdom", "英国", "ポンド"),
+         new Currency("HKD", "Hong Kong Dollar", "Hong Kong SAR", "香港", "香港ドル"),
+         new Currency("HUF", "Hungarian Forint", "Hungary", "ハンガリー", "フォリント"),
+         new Currency("IDR", "Indonesian Rupiah", "Indonesia", "インドネシア", "ルピー"),
+         new Currency("ILS", "Israeli New Shekel", "Israel", "イスラエル", "シェケル"),
+         new Currency("INR", "Indian Rupee", "India", "インド", "ルピー"),
+         new Currency("KRW", "Korean Won", "Korea", "韓国", "ウォン"),
+         new Currency("KWD", "Kuwaiti Dinar", "Kuwait", "クウェート", "ディナール"),
+         new Currency("LKR", "LKR Sri Lankan rupee", "Sri Lanka", "スリランカ", "ルピー"),
+         new Currency("MMK", "MMK Myanma kyat", "Myanmar", "ミャンマー", "チャット"),
+          new Currency("MXN", "Mexican Peso", "Mexico", "メキシコ", "ペソ"),
+          new Currency("MYR", "Malaysian Ringgit", "Malaysia", "マレーシア", "リンギット"),
+          new Currency("NGN", "Malaysian Ringgit", "Malaysia", "ナイジェリア", "ナイラ"),
+          new Currency("NOK", "Norwegian Krone", "Norway", "ノルウェー", "クローネ"),
+          new Currency("NZD", "New Zealand Dollar", "New Zealand", "ニュージーランド", "ドル"),
+          new Currency("PHP", "Philippine Peso", "Philippines", "フィリピン", "ペソ"),
+          new Currency("PKR", "Pakistan Rupee", "Islamic Republic of Pakistan", "パキスタン", "ルピー"),
+          new Currency("PLN", "Polish Zloty", "Poland", "ポーランド", "ゾロチ"),
+          new Currency("RUB", "Russian Ruble", "Russia", "ロシア", "ルーブル"),
+          new Currency("SAR", "Saudi Riyal", "Saudi Arabia", "サウジアラビア", "リヤル"),
+          new Currency("SEK", "Swedish Krona", "Sweden", "スウェーデン", "クローナ"),
+          new Currency("SGD", "Singapore Dollar", "Singapore", "シンガポール", "シンガポール・ドル"),
+          new Currency("THB", "Thai Baht", "Thailand", "タイ", "バーツ"),
+          new Currency("TRY", "Turkish Lira", "Turkey", "トルコ", "リラ"),
+          new Currency("TWD", "New Taiwan Dollar", "Taiwan", "台湾", "ドル"),
+          new Currency("UAH", "Ukrainian Hryvnia", "Ukraine", "ウクライナ", "フリヴニャ"),
+          new Currency("VEF", "Venezuelan Bolivar", "Bolivarian Republic of Venezuela", "ベネズエラ", "ボリバル"),
+          new Currency("VND", "Vietnamese Dong", "Vietnam", "ベトナム", "ドン"),
+          new Currency("ZAR", "South African Rand", "South Africa", "南アフリカ", "ランド"),
+  };
 
-        //CultureInfo全部
-        foreach (var culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
-        {
-            //CultureからRegin
-            var regionInfo = new RegionInfo(culture.Name);
-            //CultureとReginになる名前だけ
-            if (countries.Any(x => x.EnglishName == regionInfo.EnglishName)) continue;
-
-            countries.Add(regionInfo);
-        }
-        return countries;
-    }
-
-    private static string IsoCountryCodeToFlagEmoji(string country)
-    {
-        return string.Concat(country.ToUpper().Select(x => char.ConvertFromUtf32(x + 0x1F1A5)));
-    }
-
-    private static readonly List<string> CurrencyIdList = new List<string>()
-    {
-      "usd",
-      "aed",
-      "ars",
-      "aud",
-      "bdt",
-      "bhd",
-      "bmd",
-      "brl",
-      "cad",
-      "chf",
-      "clp",
-      "cny",
-      "czk",
-      "dkk",
-      "eur",
-      "gbp",
-      "hkd",
-      "huf",
-      "idr",
-      "ils",
-      "inr",
-      "jpy",
-      "krw",
-      "kwd",
-      "lkr",
-      "mmk",
-      "mxn",
-      "myr",
-      "ngn",
-      "nok",
-      "nzd",
-      "php",
-      "pkr",
-      "pln",
-      "rub",
-      "sar",
-      "sek",
-      "sgd",
-      "thb",
-      "try",
-      "twd",
-      "uah",
-      //"vef",
-      "vnd",
-      "zar",
-      //"xdr",
-      //"xag",
-      //"xau",
-      //"bits",
-      //"sats"
-    };
+    //private static readonly List<string> CurrencyIdList = new List<string>()
+    //{
+    //  "usd",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  "",
+    //  //"",
+    //  "",
+    //  "",
+    //  //"xdr",
+    //  //"xag",
+    //  //"xau",
+    //  //"bits",
+    //  //"sats"
+    //};
 }
