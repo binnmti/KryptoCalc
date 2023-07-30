@@ -76,9 +76,9 @@
                         <div>
                             <select id="@CurrentLegalCurrency.Id" class="form-control form-control-sm" @onchange="@OnChangeCurrency">
                                 @{
-                                    foreach (var legalCurrencyList in LegalCurrencyList)
+                                    foreach (var coinMarketView in LegalCoinMarketViews)
                                     {
-                                        <option value=@(legalCurrencyList.Id) selected="@(CurrentLegalCurrency.Id == legalCurrencyList.Id)">@legalCurrencyList.Id</option>
+                                        <option value=@(coinMarketView.Id) selected="@(CurrentLegalCurrency.Id == coinMarketView.Id)">@coinMarketView.Name</option>
                                     }
                                 }
                             </select>
@@ -184,15 +184,15 @@
 
 @code {
     private string _currentSymbol = "";
-    private string _currentCurrency = "";
     private int _pageNumer = 0;
     private int _displayType = 0;
     private readonly int _displayNumber = 10;
     private Calc Calc = new();
-    private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
+    private List<CoinMarketView> LegalCoinMarketViews = new();
+    private CoinMarketView CurrentLegalCurrency = new("", "", "", "", 0, 0);
     private List<CoinMarketView> CoinMarketView = new();
-    private CoinMarkets CurrentLegalCurrency = new("", "", "", "", 0);
-    private List<CoinMarkets> LegalCurrencyList = new();
+    private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
+
     private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
     private IViewSelect DisplayType = new DisplayType();
@@ -247,7 +247,7 @@
         var newCurrency = eventArgs?.Value?.ToString() ?? "";
         await SetNewCurrencyAsync(newCurrency);
 
-        CurrentLegalCurrency = LegalCurrencyList.Single(x => x.Id == newCurrency);
+        CurrentLegalCurrency = LegalCoinMarketViews.Single(x => x.CompareId(newCurrency));
         var displayType = await cookie.GetValue("DisplayType");
         await ChangeDisplayNumber("1", displayType);
     }
@@ -273,32 +273,32 @@
     {
         Calc.Input(str);
         CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
-        CurrentCoinMarketView = CoinMarketView.Single(x => string.Compare(x.Id, _currentSymbol, true) == 0);
+        CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(_currentSymbol));
         StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        LegalCurrencyList = CurrencyList.GetCurrencyCoinMarkets();
+        LegalCoinMarketViews = LegalCurrency.GetCoinMarketViews("").ToList();
 
-        _currentCurrency = await cookie.GetValue("currency");
-        if (_currentCurrency == "")
+        var currentCurrency = await cookie.GetValue("currency");
+        if (currentCurrency == "")
         {
-            _currentCurrency = LegalCurrencyList.First().Id;
+            currentCurrency = LegalCoinMarketViews.First().Id;
         }
         _currentSymbol = await cookie.GetValue("symbol");
         if (_currentSymbol == "")
         {
-            _currentSymbol = _currentCurrency;
+            _currentSymbol = LegalCoinMarketViews.First().Id;
         }
-        CurrentLegalCurrency = LegalCurrencyList.Single(x => string.Compare(x.Id,_currentCurrency, true) == 0);
+        CurrentLegalCurrency = LegalCoinMarketViews.Single(x => x.CompareId(currentCurrency));
 
         var displayType = await cookie.GetValue("DisplayType");
         if (displayType == "") displayType = DisplayType.Default;
 
         await ChangeDisplayNumber("1", displayType);
-        await SetNewSymbolAsync(_currentSymbol);
-        await SetNewCurrencyAsync(_currentCurrency);
+        await SetNewSymbolAsync(currentCurrency);
+        await SetNewCurrencyAsync(currentCurrency);
 
         HotKeysContext = HotKeys.CreateContext()
         .Add(Key.Num0, () => OnCalcButtonClick("0"))

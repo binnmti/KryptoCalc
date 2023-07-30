@@ -8,3 +8,9 @@ public record CoinMarketView(
     decimal CurrentPrice,
     decimal InputPrice
     );
+
+public static class CoinMarketViewExtention
+{
+    public static bool CompareId(this CoinMarketView coinMarkets, string dst)
+        => string.Compare(coinMarkets.Id, dst, true) == 0;
+}

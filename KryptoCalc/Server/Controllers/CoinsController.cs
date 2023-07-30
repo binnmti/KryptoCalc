@@ -18,18 +18,18 @@ public class CoinsController : ControllerBase
     }
 
     [Route("/coinMarkets")]
-    public async Task<IEnumerable<CoinMarkets>> CoinMarkets(int page, int count, string id)
+    public IEnumerable<CoinMarketView> CoinMarkets(int page, int count, string id)
     {
-        var coinMarkets = new List<CoinMarkets>();
-        //TODO:右上には1yen だけでなく入力値も出す
+        var coinMarkets = new List<CoinMarketView>();
+        //1ページ目だけ法定通貨を追加
         if (page == 1)
         {
-            var coinMarket = CurrencyList.GetCoinMarkets(id);
+            var coinMarket = LegalCurrency.GetCoinMarketView(id);
             coinMarkets.Add(coinMarket);
         }
         var skip = (Math.Max(page, 1) - 1) * count;
         var take = count == -1 ? int.MaxValue : count;
-        coinMarkets.AddRange(GetCoinMarkets(skip, take, id));
+        coinMarkets.AddRange(GetCoinMarkets(skip, take, id).ToCoinMarketViews());
         return coinMarkets;
     }
 

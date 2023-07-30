@@ -1,37 +1,30 @@
 ﻿namespace KryptoCalc.Shared;
 
-public static class CurrencyList
+public static class LegalCurrency
 {
-    public static List<CoinMarkets> GetCurrencyCoinMarkets()
-        => Currencys.Select(x => new CoinMarkets(
-            x.SymbolId,
-            x.JapanSymbol,
-            x.JapanCountry,
-            $"img/{x.SymbolId}.png",
-            1)).ToList();
+    public static IEnumerable<CoinMarketView> GetCoinMarketViews(string country)
+    => Currencys.Select(x => ToCoinMarketView(country, x));
 
-    public static CoinMarkets GetCoinMarkets(string id)
-        => GetCurrencyCoinMarkets().Single(x => x.Id == id);
+    public static CoinMarketView GetCoinMarketView(string id)
+        => ToCoinMarketView("", Currencys.Single(x => string.Compare(x.Id, id, true) == 0));
 
     private record Currency(
-        string SymbolId,
-        string Name,
-        string Country,
-        string JapanCountry,
+        string Id,
+        string Symbol,
+        string CountryName,
+        string JapanCountryName,
         string JapanSymbol);
 
-    private static List<Currency> Currencys = new List<Currency>()
+    private static readonly List<Currency> Currencys = new()
     {
         //Currency
         //https://learn.microsoft.com/en-us/dotnet/api/system.globalization.regioninfo.isocurrencysymbol?view=net-7.0
-        //Languase
-        //https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c?redirectedfrom=MSDN
         //Flag
         //https://flagdownload.com/
         //日本語
         //https://fxtop.com/jp/countries-currencies.php
         new Currency("JPY", "Japanese Yen", "Japan","日本", "円"),
-        new Currency("USD", "US Dollar", "United States", "アメリカ", "米ドル"),
+        new Currency("USD", "US Dollar", "United States", "アメリカ", "ドル"),
         new Currency("AED", "UAE Dirham", "United Arab Emirates", "アラブ首長国連邦", "ディルハム"),
         new Currency("ARS", "Argentine Peso", "Argentina", "アルゼンチン", "ペソ"),
         new Currency("AUD", "Australian Dollar", "Australia", "オーストラリア", "ドル"),
@@ -45,7 +38,6 @@ public static class CurrencyList
          new Currency("CNY", "PRC Renminbi", "People's Republic of China", "中国", "人民元"),
          new Currency("CZK", "Czech Koruna", "Czech Republic", "チェコ", "コルナ"),
          new Currency("DKK", "Danish Krone", "Denmark", "デンマーク", "クローネ"),
-         //new RegionCurrency("EUR", "Euro", "", "", "ユーロ"),
          new Currency("GBP", "UK Pound Sterling", "United Kingdom", "英国", "ポンド"),
          new Currency("HKD", "Hong Kong Dollar", "Hong Kong SAR", "香港", "香港ドル"),
          new Currency("HUF", "Hungarian Forint", "Hungary", "ハンガリー", "フォリント"),
@@ -75,5 +67,13 @@ public static class CurrencyList
           new Currency("VEF", "Venezuelan Bolivar", "Bolivarian Republic of Venezuela", "ベネズエラ", "ボリバル"),
           new Currency("VND", "Vietnamese Dong", "Vietnam", "ベトナム", "ドン"),
           new Currency("ZAR", "South African Rand", "South Africa", "南アフリカ", "ランド"),
-  };
+         //new RegionCurrency("EUR", "Euro", "", "", "ユーロ"),
+    };
+
+    private static CoinMarketView ToCoinMarketView(string country, Currency currency)
+        => new(currency.Id,
+                country == "" ? currency.JapanSymbol : currency.Symbol,
+                country == "" ? currency.JapanCountryName : currency.CountryName,
+                $"img/{currency.Id}.png",
+                1, 1);
 }
