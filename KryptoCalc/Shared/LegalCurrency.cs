@@ -75,5 +75,5 @@ public static class LegalCurrency
                 country == "" ? currency.JapanSymbol : currency.Symbol,
                 country == "" ? currency.JapanCountryName : currency.CountryName,
                 $"img/{currency.Id}.png",
-                1, 1);
+                1, 1, true);
 }

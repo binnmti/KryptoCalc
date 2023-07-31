@@ -9,25 +9,24 @@ public static class CoinMarketConvert
             x.Name,
             x.Image,
             (decimal)x.CurrentPrice,
-            0));
+            0, false));
 
-    //TODO:これはToCoinMarketViewという名前なのに変換してない。。。
-    public static IEnumerable<CoinMarketView> ToCoinMarketView(this List<CoinMarketView> coinMarkets, string newSymbol, decimal currentPrice, decimal price)
-        => coinMarkets
-            .Select(x => new CoinMarketView(
+    public static IEnumerable<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, CoinMarketView current, decimal inputNumber)
+        => coinMarkets.Select(x => new CoinMarketView(
                 x.Id,
                 x.Symbol,
                 x.Name,
                 x.Image,
                 x.CurrentPrice,
-                GetCoinPrice(price, newSymbol, currentPrice, x.Id, x.CurrentPrice)));
+                GetInputPrice(x, current, inputNumber),
+                x.IsLegal));
 
-    private static decimal GetCoinPrice(decimal price, string newSymbol, decimal newPrice, string currentSymbol, decimal currentPrice)
-        => (newSymbol == "yen")
-            ? Round(price / currentPrice)
-            : (currentSymbol == "yen")
-                ? Round(price * newPrice)
-                : Round(price * newPrice / currentPrice);
+    private static decimal GetInputPrice(CoinMarketView coinMarketView, CoinMarketView current, decimal inputNumber)
+        => current.IsLegal
+            ? Round(inputNumber / coinMarketView.CurrentPrice)
+            : coinMarketView.IsLegal
+                ? Round(inputNumber * current.CurrentPrice)
+                : Round(inputNumber * current.CurrentPrice / coinMarketView.CurrentPrice);
 
     private static decimal Round(decimal price)
         => Math.Round(price, 8);

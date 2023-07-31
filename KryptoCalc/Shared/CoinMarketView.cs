@@ -6,7 +6,8 @@ public record CoinMarketView(
     string Name,
     string Image,
     decimal CurrentPrice,
-    decimal InputPrice
+    decimal InputPrice,
+    bool IsLegal
     );
 
 public static class CoinMarketViewExtention

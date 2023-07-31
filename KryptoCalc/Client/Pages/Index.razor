@@ -189,9 +189,9 @@
     private readonly int _displayNumber = 10;
     private Calc Calc = new();
     private List<CoinMarketView> LegalCoinMarketViews = new();
-    private CoinMarketView CurrentLegalCurrency = new("", "", "", "", 0, 0);
+    private CoinMarketView CurrentLegalCurrency = new("", "", "", "", 0, 0, false);
     private List<CoinMarketView> CoinMarketView = new();
-    private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0);
+    private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0, false);
 
     private PaginatedParameter PaginatedParameter = default!;
     private HotKeysContext HotKeysContext = default!;
@@ -200,6 +200,7 @@
     private async Task SetNewSymbolAsync(string newSymbol)
     {
         CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == newSymbol);
+        //多分ここでリーガルかどうかチェック
         _currentSymbol = newSymbol;
         Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
         await cookie.SetValue("symbol", _currentSymbol);
@@ -207,6 +208,7 @@
 
     private async Task SetNewCurrencyAsync(string newCurrency)
     {
+        //ここは常にリーガル？
         _currentSymbol = newCurrency;
         await cookie.SetValue("currency", _currentSymbol);
     }
@@ -219,7 +221,9 @@
         CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}&id={CurrentLegalCurrency.Id}") ?? new List<CoinMarketView>();
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
         await cookie.SetValue("DisplayType", DisplayType.Value);
-        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
+
+        //_currentSymbolが法定通貨ならtrueにする
+        CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
         PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
         StateHasChanged();
     }
@@ -272,7 +276,7 @@
     private void OnCalcButtonClick(string str)
     {
         Calc.Input(str);
-        CoinMarketView = CoinMarketView.ToCoinMarketView(_currentSymbol, CurrentCoinMarketView.CurrentPrice, Calc.CurrentInputNumber).ToList();
+        CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
         CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(_currentSymbol));
         StateHasChanged();
     }
