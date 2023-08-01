@@ -115,7 +115,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col text-truncate">
-                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentLegalCurrency.Symbol</span>
+                                                        <span>@CurrentCoinMarketView.InputPrice @CurrentCoinMarketView.Symbol</span>
                                                     </div>
                                                 </div>
                                             }
@@ -145,15 +145,16 @@
                                                             <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
                                                             <span>@coinMarketView.Name</span>
                                                         </div>
-                                                        @*
                                                         <div class="col text-truncate">
                                                             <span>1@(coinMarketView.Symbol) = @(coinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
                                                         </div>
-                                                        *@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col text-truncate">
                                                             <span>@coinMarketView.InputPrice @coinMarketView.Symbol</span>
+                                                        </div>
+                                                        <div class="col text-truncate">
+                                                            <span>= @CurrentCoinMarketView.InputPrice @CurrentCoinMarketView.Symbol</span>
                                                         </div>
                                                     </div>
                                                 }
@@ -199,18 +200,16 @@
 
     private async Task SetNewSymbolAsync(string newSymbol)
     {
-        CurrentCoinMarketView = CoinMarketView.Single(x => x.Id == newSymbol);
-        //多分ここでリーガルかどうかチェック
         _currentSymbol = newSymbol;
+        CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(newSymbol));
         Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
     private async Task SetNewCurrencyAsync(string newCurrency)
     {
-        //ここは常にリーガル？
-        _currentSymbol = newCurrency;
-        await cookie.SetValue("currency", _currentSymbol);
+        CurrentLegalCurrency = LegalCoinMarketViews.Single(x => x.CompareId(newCurrency));
+        await cookie.SetValue("currency", newCurrency);
     }
 
     private async Task ChangeDisplayNumber(string page, string displayType)
@@ -248,10 +247,10 @@
     {
         var newCurrency = eventArgs?.Value?.ToString() ?? "";
         await SetNewCurrencyAsync(newCurrency);
-
-        CurrentLegalCurrency = LegalCoinMarketViews.Single(x => x.CompareId(newCurrency));
         var displayType = await cookie.GetValue("DisplayType");
         await ChangeDisplayNumber("1", displayType);
+        await SetNewSymbolAsync(newCurrency);
+        StateHasChanged();
     }
 
     private async void OnChangeDisplayType(ChangeEventArgs eventArgs)
