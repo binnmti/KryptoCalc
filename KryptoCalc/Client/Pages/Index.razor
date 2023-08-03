@@ -101,9 +101,12 @@
                                                         <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
                                                         <span>@CurrentCoinMarketView.Name</span>
                                                     </div>
-                                                    <div class="col text-truncate">
-                                                        <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
-                                                    </div>
+                                                    @if (CurrentCoinMarketView.Id != CurrentLegalCurrency.Id)
+                                                    {
+                                                        <div class="col text-truncate">
+                                                            <span>1@(CurrentCoinMarketView.Symbol) = @(CurrentCoinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
+                                                        </div>
+                                                    }
                                                 </div>
                                                 <div class="row">
                                                     <div class="col text-truncate">
@@ -140,9 +143,12 @@
                                                             <img src="@coinMarketView.Image" class="img-thumbnail" alt="">
                                                             <span>@coinMarketView.Name</span>
                                                         </div>
-                                                        <div class="col text-truncate">
-                                                            <span>1@(coinMarketView.Symbol) = @(coinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
-                                                        </div>
+                                                        @if (CurrentLegalCurrency.Id != coinMarketView.Id)
+                                                        {
+                                                            <div class="col text-truncate">
+                                                                <span>1@(coinMarketView.Symbol) = @(coinMarketView.CurrentPrice)@(CurrentLegalCurrency.Symbol)</span>
+                                                            </div>
+                                                        }
                                                     </div>
                                                     <div class="row">
                                                         <div class="col text-truncate">
@@ -198,6 +204,7 @@
         _currentSymbol = newSymbol;
         CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(newSymbol));
         Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
+        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
         await cookie.SetValue("symbol", _currentSymbol);
     }
 
