@@ -277,7 +277,8 @@
     {
         Calc.Input(str);
         CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
-        CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(_currentSymbol));
+        //CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(_currentSymbol));
+        CurrentCoinMarketView = CurrentCoinMarketView with { InputPrice = Calc.CurrentInputNumber };
         CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
         StateHasChanged();
     }

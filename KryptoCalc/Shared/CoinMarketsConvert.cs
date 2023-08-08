@@ -5,7 +5,7 @@ public static class CoinMarketConvert
     public static IEnumerable<CoinMarketView> ToCoinMarketViews(this IEnumerable<CoinMarkets> coinMarketsList)
         => coinMarketsList.Select(x => new CoinMarketView(
             x.Id,
-            x.Symbol,
+            x.Symbol.ToUpper(),
             x.Name,
             x.Image,
             (decimal)x.CurrentPrice,
