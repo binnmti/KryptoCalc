@@ -37,6 +37,26 @@ public class CoinsController : ControllerBase
     public async Task<int> CoinMarketsCount()
         => await _context.CoinMarkets.Where(x => x.MarketCapRank != 0).CountAsync();
 
+    [Route("/exchange")]
+    public async Task<decimal> Exchange(string srcCurrency, string dstCurrency)
+    {
+        var price = await _context.Price.Where(x => x.CoinMarketsId == "bitcoin").OrderBy(x => x.UpdateTime).LastAsync();
+        var srcPrice = GetPrice(price, srcCurrency);
+        var dstPrice = GetPrice(price, dstCurrency);
+        return dstPrice / srcPrice;
+    }
+
+    private decimal GetPrice(Price price, string id)
+    {
+        var idc = "";
+        for (int i = 0; i < id.Length; i++)
+        {
+            idc += i == 0 ? char.ToUpper(id[i]) : char.ToLower(id[i]);
+        }
+        var value = typeof(Price)?.GetProperty(idc)?.GetValue(price);
+        return value != null ? (decimal)value : 0;
+    }
+
     private IQueryable<CoinMarkets> GetCoinMarkets(int skip, int take, string id)
     {
         //Price.{id}の部分がメソッド式に出来ないの理由

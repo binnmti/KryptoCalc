@@ -248,6 +248,8 @@
     private async void OnChangeCurrency(ChangeEventArgs eventArgs)
     {
         var newCurrency = eventArgs?.Value?.ToString() ?? "";
+        var price = await Http.GetFromJsonAsync<decimal>($"exchange?srcCurrency={CurrentLegalCurrency.Id}&dstCurrency={newCurrency}");
+        Calc.Change((CurrentCoinMarketView.InputPrice * price).ToString());
         await SetNewCurrencyAsync(newCurrency);
         var displayType = await cookie.GetValue("DisplayType");
         await ChangeDisplayNumber("1", displayType);
@@ -260,7 +262,6 @@
         var newDisplay = eventArgs?.Value?.ToString() ?? "";
         await ChangeDisplayNumber("1", newDisplay);
     }
-
     private async void OnListClick(string id)
     {
         await SetNewSymbolAsync(id);
