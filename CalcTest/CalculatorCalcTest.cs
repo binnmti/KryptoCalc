@@ -39,4 +39,16 @@ public class CalculatorCalcTest
         // Assert
         ((decimal)expected).Should().Be(calc.CurrentInputNumber);
     }
+
+    [TestMethod]
+    public void Test()
+    {
+        var rate1 = 29724.0000m / 4266701.0000m;
+        var rate2 = 4266701.0000m / 29724.0000m;
+        var j = 100m * rate1;
+        var j1 = Math.Round(j, 4);
+        var j2 = j * rate2;
+        var j3 = Math.Round(j2, 4);
+        j3.Should().Be(100.0000m);
+    }
 }
