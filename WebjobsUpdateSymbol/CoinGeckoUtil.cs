@@ -190,27 +190,27 @@ internal static class CoinGeckoUtil
                 Name = x.name,
                 Symbol = x.symbol,
                 Ath = x.ath ?? default,
-                AthChangePercentage = x.ath_change_percentage ?? default,
+                AthChangePercentage = GetValue(x.ath_change_percentage),
                 AthDate = GetMinDateTime(x.ath_date) ?? default,
-                Atl = x.atl ?? default,
+                Atl = GetValue(x.atl),
                 Image = x.image,
-                AtlChangePercentage = x.atl_change_percentage == float.PositiveInfinity ? 0 : x.atl_change_percentage ?? default,
+                AtlChangePercentage = GetValue(x.atl_change_percentage),
                 AtlDate = GetMinDateTime(x.atl_date) ?? default,
-                CirculatingSupply = x.circulating_supply ?? default,
-                CurrentPrice = x.current_price ?? default,
-                FullyDilutedValuation = x.fully_diluted_valuation ?? default,
-                High24h = x.high_24h ?? default,
+                CirculatingSupply = GetValue(x.circulating_supply),
+                CurrentPrice = GetValue(x.current_price),
+                FullyDilutedValuation = GetValue(x.fully_diluted_valuation),
+                High24h = GetValue(x.high_24h),
                 LastUpdated = GetMinDateTime(x.last_updated) ?? default,
-                Low24h = x.low_24h ?? default,
-                MarketCap = x.market_cap ?? default,
-                MarketCapChange24h = x.market_cap_change_24h ?? default,
-                MarketCapChangePercentage24h = x.market_cap_change_percentage_24h ?? default,
+                Low24h = GetValue(x.low_24h),
+                MarketCap = GetValue(x.market_cap),
+                MarketCapChange24h = GetValue(x.market_cap_change_24h),
+                MarketCapChangePercentage24h = GetValue(x.market_cap_change_percentage_24h),
                 MarketCapRank = x.market_cap_rank ?? default,
-                MaxSupply = x.max_supply ?? default,
-                PriceChange24h = x.price_change_24h ?? default,
-                PriceChangePercentage24h = x.price_change_percentage_24h ?? default, 
-                TotalSupply = x.total_supply ?? default,
-                TotalVolume = x.total_volume ?? default,
+                MaxSupply = GetValue(x.max_supply),
+                PriceChange24h = GetValue(x.price_change_24h),
+                PriceChangePercentage24h = GetValue(x.price_change_percentage_24h), 
+                TotalSupply = GetValue(x.total_supply),
+                TotalVolume = GetValue(x.total_volume),
             }));
             Console.WriteLine($"coins/markets/page={page}&count={coinMarkets.Count}");
             page++;
@@ -218,4 +218,7 @@ internal static class CoinGeckoUtil
         }
         return coinMarkets;
     }
+
+    private static float GetValue(float? value)
+        => value == float.PositiveInfinity ? 0 : value ?? default;
 }
