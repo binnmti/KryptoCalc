@@ -29,6 +29,7 @@ catch(Exception ex)
 async Task Run()
 {
     using var sqlConnection = new SqlConnection(connectionString);
+    sqlConnection.Open();
     using var transaction = sqlConnection.BeginTransaction();
     var exceptionList = new List<string>();
 
