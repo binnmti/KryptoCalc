@@ -35,7 +35,7 @@ async Task Run()
     var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
     var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, 
         coinMarketList.Where(x => x.MarketCapRank != 0).Select(x => x.Id).ToList());
-    int co = 0;
+    int co = 1;
     foreach (var coinMarket in coinMarketList)
     {
         try
@@ -52,7 +52,7 @@ async Task Run()
         Console.WriteLine($"CoinMarket:{co++}/{coinMarketList.Count}:{coinMarket.Id}");
         Thread.Sleep(1);
     }
-    co = 0;
+    co = 1;
     foreach (var price in priceList)
     {
         try
