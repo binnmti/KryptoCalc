@@ -29,6 +29,9 @@ catch(Exception ex)
 async Task Run()
 {
     using var sqlConnection = new SqlConnection(connectionString);
+    using var transaction = sqlConnection.BeginTransaction();
+    var exceptionList = new List<string>();
+
     var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
     var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, 
         coinMarketList.Where(x => x.MarketCapRank != 0).Select(x => x.Id).ToList());
@@ -39,11 +42,12 @@ async Task Run()
         {
             sqlConnection.InsertOrUpdate(coinMarket, coinMarket.Id);
         }
-        catch
+        catch (Exception ex)
         {
             var values = string.Concat(string.Join(",", coinMarket.GetType().GetProperties().Select(x => x.GetValue(coinMarket).ToString())));
-            Console.WriteLine($"values = {values}");
-            throw;
+            var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
+            if (exceptionList[^1] == value) throw;
+            exceptionList.Add(value);
         }
         Console.WriteLine($"CoinMarket:{co++}/{coinMarketList.Count}:{coinMarket.Id}");
         Thread.Sleep(1);
@@ -55,14 +59,19 @@ async Task Run()
         {
             sqlConnection.Insert(price);
         }
-        catch
+        catch (Exception ex)
         {
             var values = string.Concat(string.Join(",", price.GetType().GetProperties().Select(x => x.GetValue(price).ToString())));
-            Console.WriteLine($"values = {values}");
-            throw;
+            var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
+            if (exceptionList[^1] == value) throw;
+            exceptionList.Add(value);
         }
-        Console.WriteLine($"Price:{co++}/{priceList.Count}:{price.Id}");
+        Console.WriteLine($"Price:{co++}/{priceList.Count}:{price.CoinMarketsId}");
         Thread.Sleep(1);
     }
-
+    transaction.Commit();
+    if (exceptionList.Any())
+    {
+        throw new Exception("Exception!!");
+    }
 }
