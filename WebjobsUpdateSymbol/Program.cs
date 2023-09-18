@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using System.Text;
 using WebjobsUpdateSymbol;
@@ -12,6 +13,8 @@ if (isDevelopment) builder.AddUserSecrets<Program>();
 var Configuration = builder.Build();
 var connectionString = Configuration["ConnectionStrings:KryptoCalcServerContext"];
 var discordBotToken = Configuration["ConnectionStrings:DiscordBotToken"];
+var cosmosEndpoint = Configuration["ConnectionStrings:CosmosEndpoint"];
+var cosmosKey = Configuration["ConnectionStrings:CosmosKey"];
 ulong.TryParse(Configuration["ConnectionStrings:DiscordChannelId"], out var discordChannelId);
 using var httpClient = new HttpClient();
 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36");
@@ -47,7 +50,7 @@ async Task Run()
         {
             var values = string.Concat(string.Join(",", coinMarket.GetType().GetProperties().Select(x => x.GetValue(coinMarket).ToString())));
             var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
-            if (exceptionList[^1] == value) throw;
+            if (exceptionList.Any() && exceptionList[^1] == value) throw;
             exceptionList.Add(value);
         }
         Console.WriteLine($"CoinMarket:{co++}/{coinMarketList.Count}:{coinMarket.Id}");
@@ -64,7 +67,7 @@ async Task Run()
         {
             var values = string.Concat(string.Join(",", price.GetType().GetProperties().Select(x => x.GetValue(price).ToString())));
             var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
-            if (exceptionList[^1] == value) throw;
+            if (exceptionList.Any() && exceptionList[^1] == value) throw;
             exceptionList.Add(value);
         }
         Console.WriteLine($"Price:{co++}/{priceList.Count}:{price.CoinMarketsId}");
@@ -75,4 +78,11 @@ async Task Run()
     {
         throw new Exception("Exception!!");
     }
+
+    //using var client = new CosmosClient(cosmosEndpoint, cosmosKey);
+    //Database database = await client.CreateDatabaseIfNotExistsAsync("KryptoCalcDB");
+    //Container container = await database.CreateContainerIfNotExistsAsync("KryptoCalcContainer", "/categoryId", 400);
+    //Product createdItem = await container.CreateItemAsync<Product>(
+    //item: newItem,
+    //partitionKey: new PartitionKey("61dba35b-4f02-45c5-b648-c6badc0cbd79")
 }
