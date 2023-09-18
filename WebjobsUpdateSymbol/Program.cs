@@ -51,6 +51,7 @@ async Task Run()
             var values = string.Concat(string.Join(",", coinMarket.GetType().GetProperties().Select(x => x.GetValue(coinMarket).ToString())));
             var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
             if (exceptionList.Any() && exceptionList[^1] == value) throw;
+            Console.WriteLine(value);
             exceptionList.Add(value);
         }
         Console.WriteLine($"CoinMarket:{co++}/{coinMarketList.Count}:{coinMarket.Id}");
@@ -68,16 +69,18 @@ async Task Run()
             var values = string.Concat(string.Join(",", price.GetType().GetProperties().Select(x => x.GetValue(price).ToString())));
             var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
             if (exceptionList.Any() && exceptionList[^1] == value) throw;
+            Console.WriteLine(value);
             exceptionList.Add(value);
         }
         Console.WriteLine($"Price:{co++}/{priceList.Count}:{price.CoinMarketsId}");
         Thread.Sleep(1);
     }
-    transaction.Commit();
     if (exceptionList.Any())
     {
+        transaction.Rollback();
         throw new Exception("Exception!!");
     }
+    transaction.Commit();
 
     //using var client = new CosmosClient(cosmosEndpoint, cosmosKey);
     //Database database = await client.CreateDatabaseIfNotExistsAsync("KryptoCalcDB");
