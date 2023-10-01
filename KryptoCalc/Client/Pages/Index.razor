@@ -25,6 +25,29 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col text-top">
+                    <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                    <span>@CurrentCoinMarketView.Name</span>
+                </div>
+                <div class="col text-end">
+                    @CurrentCoinMarketView.Symbol
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" id="display" class="subTextbox form-control" value="@CurrentLegalCurrency.InputPrice" readonly>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-top">
+                    <img src="@CurrentLegalCurrency.Image" class="img-thumbnail" alt="">
+                    <span>@CurrentLegalCurrency.Name</span>
+                </div>
+                <div class="col text-end">
+                    @CurrentLegalCurrency.Symbol
+                </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <div class="grid">
                         <button class="p-1 btn btn-secondary" @onclick="@(s => OnCalcButtonClick("7"))">7</button>
@@ -74,18 +97,6 @@
                                     }
                                 }
                             </select>
-
-                        @*
-                    
-                            <select id="@DisplayType.Id" class="form-control form-control-sm" @onchange="@OnChangeDisplayType">
-                            @{
-                                foreach (var item in DisplayType.Items)
-                                {
-                                    <option value=@(item.Key) selected="@(DisplayType.Value == item.Key)">@item.Value</option>
-                                }
-                            }
-                        </select>
-                    *@
                         </div>
                         <div>
                         </div>
