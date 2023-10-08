@@ -230,7 +230,8 @@
         _pageNumer = int.Parse(page);
         _displayType = int.Parse(displayType);
         DisplayType.Value = displayType;
-        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}&id={CurrentLegalCurrency.Id}") ?? new List<CoinMarketView>();
+        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}") ?? new List<CoinMarketView>();
+        CoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(CurrentLegalCurrency.Id));
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
         await cookie.SetValue("DisplayType", DisplayType.Value);
         CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();

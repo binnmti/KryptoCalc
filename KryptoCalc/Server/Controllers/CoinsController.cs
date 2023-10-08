@@ -18,19 +18,11 @@ public class CoinsController : ControllerBase
     }
 
     [Route("/coinMarkets")]
-    public IEnumerable<CoinMarketView> CoinMarkets(int page, int count, string id)
+    public IEnumerable<CoinMarketView> CoinMarkets(int page, int count)
     {
-        var coinMarkets = new List<CoinMarketView>();
-        //1ページ目だけ法定通貨を追加
-        if (page == 1)
-        {
-            var coinMarket = LegalCurrency.GetCoinMarketView(id);
-            coinMarkets.Add(coinMarket);
-        }
         var skip = (Math.Max(page, 1) - 1) * count;
         var take = count == -1 ? int.MaxValue : count;
-        coinMarkets.AddRange(GetCoinMarkets(skip, take, id).ToCoinMarketViews());
-        return coinMarkets;
+        return GetCoinMarkets(skip, take);
     }
 
     [Route("/coinMarketsCount")]
@@ -57,42 +49,78 @@ public class CoinsController : ControllerBase
         return value != null ? (decimal)value : 0;
     }
 
-    private IQueryable<CoinMarkets> GetCoinMarkets(int skip, int take, string id)
+    private List<CoinMarketView> GetCoinMarkets(int skip, int take)
     {
-        //Price.{id}の部分がメソッド式に出来ないの理由
-        var query = @$"select
-	                    CoinMarkets.Id,
-	                    CoinMarkets.Symbol,
-	                    CoinMarkets.Name,
-	                    CoinMarkets.Image,
-	                    CAST(latestPrice.{id} AS real) as CurrentPrice,                        
-	                    CoinMarkets.MarketCap,
-	                    CoinMarkets.MarketCapRank,
-	                    CoinMarkets.FullyDilutedValuation,
-	                    CoinMarkets.TotalVolume,
-	                    CoinMarkets.High24h,
-	                    CoinMarkets.Low24h,
-	                    CoinMarkets.PriceChange24h,
-	                    CoinMarkets.PriceChangePercentage24h,
-	                    CoinMarkets.MarketCapChange24h,
-	                    CoinMarkets.MarketCapChangePercentage24h,
-	                    CoinMarkets.CirculatingSupply,
-	                    CoinMarkets.TotalSupply,
-	                    CoinMarkets.MaxSupply,
-	                    CoinMarkets.Ath,
-	                    CoinMarkets.AthChangePercentage,
-	                    CoinMarkets.AthDate,
-	                    CoinMarkets.Atl,
-	                    CoinMarkets.AtlDate,
-	                    CoinMarkets.AtlChangePercentage,
-	                    CoinMarkets.LastUpdated
-                    from
-                      [CoinMarkets]
-                      inner join
-                      (select * from ( select *, row_number() over ( partition by CoinMarketsId order by Id desc ) ranking from Price) _ where ranking = 1) latestPrice
-                      on [CoinMarkets].id = latestPrice.CoinMarketsId
-                      where MarketCapRank != 0 order by MarketCapRank
-                      offset {skip} rows FETCH NEXT {take} ROWS ONLY;";
-        return _context.CoinMarkets.FromSql(FormattableStringFactory.Create(query));
+        var coinMarkets = _context.CoinMarkets.Where(x => x.MarketCapRank != 0).OrderBy(x => x.MarketCapRank).Skip(skip).Take(take).ToList();
+        var query = @$"select * from ( select *, row_number() over ( partition by CoinMarketsId order by Id desc ) ranking from Price) _ where ranking = 1";
+        var prices = _context.Price.FromSql(FormattableStringFactory.Create(query)).ToList();
+        //var prices = _context.Price.Where(x => x.CreateTime == DateTime.Now);
+
+        var coinMarketView = new List<CoinMarketView>();
+        foreach (var coinMarket in coinMarkets)
+        {
+            var price = prices.Single(y => y.CoinMarketsId == coinMarket.Id);
+            coinMarketView.Add(new CoinMarketView(
+            coinMarket.Id,
+            coinMarket.Symbol.ToUpper(),
+            coinMarket.Name,
+            coinMarket.Image,
+            //TODO:これで良いのか？
+            price.Jpy == 0 ? 1 : price.Jpy,
+
+            0,
+            false,
+            price.Usd,
+            price.Aed,
+            price.Ars,
+            price.Aud,
+            price.Bdt,
+            price.Bhd,
+            price.Bmd,
+            price.Brl,
+            price.Cad,
+            price.Chf,
+            price.Clp,
+            price.Cny,
+            price.Czk,
+            price.Dkk,
+            price.Eur,
+            price.Gbp,
+            price.Hkd,
+            price.Huf,
+            price.Idr,
+            price.Ils,
+            price.Inr,
+            price.Jpy,
+            price.Krw,
+            price.Kwd,
+            price.Lkr,
+            price.Mmk,
+            price.Mxn,
+            price.Myr,
+            price.Ngn,
+            price.Nok,
+            price.Nzd,
+            price.Php,
+            price.Pkr,
+            price.Pln,
+            price.Rub,
+            price.Sar,
+            price.Sek,
+            price.Sgd,
+            price.Thb,
+            price.Try,
+            price.Twd,
+            price.Uah,
+            price.Vef,
+            price.Vnd,
+            price.Zar,
+            price.Xdr,
+            price.Xag,
+            price.Xau,
+            price.Bits,
+            price.Sat));
+        }
+        return coinMarketView;
     }
 }
