@@ -204,6 +204,7 @@
     private List<CoinMarketView> LegalCoinMarketViews = new();
     private CoinMarketView CurrentLegalCurrency = new("", "", "", "", 0, 0, false);
     private List<CoinMarketView> CoinMarketView = new();
+    private List<CoinMarketView> AllCoinMarketView = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0, false);
 
     private PaginatedParameter PaginatedParameter = default!;
@@ -230,8 +231,9 @@
         _pageNumer = int.Parse(page);
         _displayType = int.Parse(displayType);
         DisplayType.Value = displayType;
-        CoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page={page}&count={_displayNumber}") ?? new List<CoinMarketView>();
-        CoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(CurrentLegalCurrency.Id));
+        var skip = (Math.Max(_pageNumer, 1) - 1) * _displayType;
+        var take = _displayType == -1 ? int.MaxValue : _displayType;
+        CoinMarketView = AllCoinMarketView.Skip(skip).Take(take).ToList();
         var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
         await cookie.SetValue("DisplayType", DisplayType.Value);
         CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
@@ -260,9 +262,12 @@
     private async void OnChangeCurrency(ChangeEventArgs eventArgs)
     {
         var newCurrency = eventArgs?.Value?.ToString() ?? "";
-        var price = await Http.GetFromJsonAsync<decimal>($"exchange?srcCurrency={CurrentLegalCurrency.Id}&dstCurrency={newCurrency}");
+        //1=bitcoinをベースに法定通貨を産出する
+        var price = AllCoinMarketView.ElementAt(1).ExChange(CurrentLegalCurrency.Id, newCurrency);
         Calc.Change((CurrentCoinMarketView.InputPrice * price).ToString());
         await SetNewCurrencyAsync(newCurrency);
+        AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
+        AllCoinMarketView.UpdateCoinMarketViews(newCurrency);
         var displayType = await cookie.GetValue("DisplayType");
         await ChangeDisplayNumber("1", displayType);
         await SetNewSymbolAsync(newCurrency);
@@ -312,6 +317,10 @@
 
         var displayType = await cookie.GetValue("DisplayType");
         if (displayType == "") displayType = DisplayType.Default;
+
+        AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1&id={currentCurrency}") ?? new List<CoinMarketView>();
+        AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(currentCurrency));
+        AllCoinMarketView.UpdateCoinMarketViews(currentCurrency);
 
         await ChangeDisplayNumber("1", displayType);
         await SetNewSymbolAsync(currentCurrency);

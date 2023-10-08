@@ -192,9 +192,23 @@ public static class CoinMarketViewExtention
     public static bool CompareId(this CoinMarketView coinMarkets, string dst)
         => string.Compare(coinMarkets.Id, dst, true) == 0;
 
+    public static IEnumerable<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, string id)
+        => coinMarkets.Select(x => x with { CurrentPrice = GetIdValue(x, id) });
+
+    public static decimal ExChange(this CoinMarketView coinMarket, string srcCurrency, string dstCurrency)
+        => GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency);
+
     //TODO:UnitTest
     public static IEnumerable<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, CoinMarketView current, decimal inputNumber)
         => coinMarkets.Select(x => x with { InputPrice = GetInputPrice(x, current, inputNumber) });
+
+    private static decimal GetIdValue(CoinMarketView x, string id)
+    {
+        //先頭を大文字、それ以降を小文字にする
+        var idc = string.Concat(id.Select((x, idx) => idx == 0 ? char.ToUpper(x) : char.ToLower(x)));
+        var value = (decimal?)(typeof(CoinMarketView).GetProperty(idc)?.GetValue(x)) ?? 1m;
+        return value == 0 ? 1 : value;
+    }
 
     private static decimal GetInputPrice(CoinMarketView coinMarketView, CoinMarketView current, decimal inputNumber)
         => current.IsLegal
