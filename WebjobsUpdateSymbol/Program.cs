@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Dapper;
+using KryptoCalc.Shared;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using System.Text;
@@ -13,7 +15,7 @@ var builder = new ConfigurationBuilder().AddEnvironmentVariables();
 if (isDevelopment) builder.AddUserSecrets<Program>();
 var Configuration = builder.Build();
 var connectionString = Configuration["ConnectionStrings:KryptoCalcServerContext"];
-var discordBotToken = Configuration["ConnectionStrings:DiscordBotToken"];
+var discordBotToken = Configuration["ConnectionStrings:DiscordBotToken"] ?? "";
 var cosmosEndpoint = Configuration["ConnectionStrings:CosmosEndpoint"];
 var cosmosKey = Configuration["ConnectionStrings:CosmosKey"];
 ulong.TryParse(Configuration["ConnectionStrings:DiscordChannelId"], out var discordChannelId);
@@ -28,6 +30,14 @@ catch(Exception ex)
 {
     await DiscordBotUtil.SendMessageAsync(discordBotToken, discordChannelId, ex.Message);
     throw;
+}
+
+string GetErrorMessage<T>(T data, Exception ex)
+{
+    if(data == null) return "";
+
+    var values = string.Concat(string.Join(",", data.GetType().GetProperties().Select(x => x.GetValue(data)?.ToString())));
+    return values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
 }
 
 async Task Run()
@@ -50,10 +60,8 @@ async Task Run()
             }
             catch (Exception ex)
             {
-                var values = string.Concat(string.Join(",", coinMarket.GetType().GetProperties().Select(x => x.GetValue(coinMarket).ToString())));
-                var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
+                Console.WriteLine(GetErrorMessage(coinMarket, ex));
                 if (exceptionList.Any() && exceptionList[^1] == ex.Message) throw;
-                Console.WriteLine(value);
                 exceptionList.Add(ex.Message);
             }
             Console.WriteLine($"CoinMarket:{co++}/{coinMarketList.Count}:{coinMarket.Id}");
@@ -68,15 +76,92 @@ async Task Run()
             }
             catch (Exception ex)
             {
-                var values = string.Concat(string.Join(",", price.GetType().GetProperties().Select(x => x.GetValue(price).ToString())));
-                var value = values + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace;
+                Console.WriteLine(GetErrorMessage(price, ex));
                 if (exceptionList.Any() && exceptionList[^1] == ex.Message) throw;
-                Console.WriteLine(value);
                 exceptionList.Add(ex.Message);
             }
             Console.WriteLine($"Price:{co++}/{priceList.Count}:{price.CoinMarketsId}");
             Thread.Sleep(1);
         }
+
+        sqlConnection.Query($"Truncate table {typeof(CoinMarketView).Name};");
+        var coinMarketRankingList = coinMarketList.Where(x => x.MarketCapRank != 0).OrderBy(x => x.MarketCapRank).ToList();
+        foreach (var coinMarketRanking in coinMarketRankingList)
+        {
+            var price = priceList.Single(y => y.CoinMarketsId == coinMarketRanking.Id);
+            var coinMarketView = new CoinMarketView(
+            coinMarketRanking.Id,
+            coinMarketRanking.Symbol.ToUpper(),
+            coinMarketRanking.Name,
+            coinMarketRanking.Image,
+            0,
+            0,
+            false,
+            price.Usd,
+            price.Aed,
+            price.Ars,
+            price.Aud,
+            price.Bdt,
+            price.Bhd,
+            price.Bmd,
+            price.Brl,
+            price.Cad,
+            price.Chf,
+            price.Clp,
+            price.Cny,
+            price.Czk,
+            price.Dkk,
+            price.Eur,
+            price.Gbp,
+            price.Hkd,
+            price.Huf,
+            price.Idr,
+            price.Ils,
+            price.Inr,
+            price.Jpy,
+            price.Krw,
+            price.Kwd,
+            price.Lkr,
+            price.Mmk,
+            price.Mxn,
+            price.Myr,
+            price.Ngn,
+            price.Nok,
+            price.Nzd,
+            price.Php,
+            price.Pkr,
+            price.Pln,
+            price.Rub,
+            price.Sar,
+            price.Sek,
+            price.Sgd,
+            price.Thb,
+            price.Try,
+            price.Twd,
+            price.Uah,
+            price.Vef,
+            price.Vnd,
+            price.Zar,
+            price.Xdr,
+            price.Xag,
+            price.Xau,
+            price.Bits,
+            price.Sat);
+
+            try
+            {
+                sqlConnection.Insert(coinMarketView);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(GetErrorMessage(coinMarketView, ex));
+                if (exceptionList.Any() && exceptionList[^1] == ex.Message) throw;
+                exceptionList.Add(ex.Message);
+            }
+            Console.WriteLine($"Price:{co++}/{coinMarketRankingList.Count}:{coinMarketRanking.Id}");
+            Thread.Sleep(1);
+        }
+
         transaction.Complete();
         if (exceptionList.Any())
         {

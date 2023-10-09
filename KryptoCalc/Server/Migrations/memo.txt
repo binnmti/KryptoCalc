@@ -1,3 +1,3 @@
 dotnet ef migrations remove --project  .\KryptoCalc\Server
-dotnet ef migrations add ChangeId8 --project .\KryptoCalc\Server
+dotnet ef migrations add AddCoimMarketView --project .\KryptoCalc\Server
 dotnet ef database update --project .\KryptoCalc\Server

@@ -12,5 +12,6 @@ public class KryptoCalcServerContext : DbContext
 
     public DbSet<Coin> Coin { get; set; } = default!;
     public DbSet<CoinMarkets> CoinMarkets { get; set; } = default!;
+    public DbSet<CoinMarketView> CoinMarketView { get; set; } = default!;
     public DbSet<Price> Price { get; set; } = default!;
 }

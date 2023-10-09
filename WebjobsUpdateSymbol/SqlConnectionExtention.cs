@@ -20,7 +20,15 @@ public static class SqlConnectionExtention
     public static void Insert<T>(this SqlConnection sqlConnection, T data)
     {
         //TODO:Idがintの場合はSkipするみたいな感じがベター
-        var properties = data.GetType().GetProperties().Skip(1);
+        IEnumerable<PropertyInfo> properties;
+        if (data?.GetType()?.GetProperty("Id")?.PropertyType == typeof(int))
+        {
+            properties = data.GetType().GetProperties().Skip(1);
+        }
+        else
+        {
+            properties = data?.GetType().GetProperties().AsEnumerable() ?? new List<PropertyInfo>();
+        }
         var (sql, param) = (data.GetInsertSql(properties), data.GetParam(properties));
         sqlConnection.Execute(sql, param);
     }
