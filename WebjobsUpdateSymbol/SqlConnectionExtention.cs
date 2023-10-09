@@ -17,6 +17,9 @@ public static class SqlConnectionExtention
         sqlConnection.Execute(sql, param);
     }
 
+    public static void Truncate<T>(this SqlConnection sqlConnection)
+        => sqlConnection.Query($"Truncate table {typeof(T).Name};");
+
     public static void Insert<T>(this SqlConnection sqlConnection, T data)
     {
         //TODO:Idがintの場合はSkipするみたいな感じがベター

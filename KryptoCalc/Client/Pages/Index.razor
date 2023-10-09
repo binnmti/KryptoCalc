@@ -267,7 +267,7 @@
         Calc.Change((CurrentCoinMarketView.InputPrice * price).ToString());
         await SetNewCurrencyAsync(newCurrency);
         AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
-        AllCoinMarketView.UpdateCoinMarketViews(newCurrency);
+        AllCoinMarketView = AllCoinMarketView.UpdateCoinMarketViews(newCurrency);
         var displayType = await cookie.GetValue("DisplayType");
         await ChangeDisplayNumber("1", displayType);
         await SetNewSymbolAsync(newCurrency);
@@ -320,7 +320,7 @@
 
         AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1&id={currentCurrency}") ?? new List<CoinMarketView>();
         AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(currentCurrency));
-        AllCoinMarketView.UpdateCoinMarketViews(currentCurrency);
+        AllCoinMarketView = AllCoinMarketView.UpdateCoinMarketViews(currentCurrency);
 
         await ChangeDisplayNumber("1", displayType);
         await SetNewSymbolAsync(currentCurrency);

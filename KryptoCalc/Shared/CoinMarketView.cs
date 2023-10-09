@@ -192,8 +192,8 @@ public static class CoinMarketViewExtention
     public static bool CompareId(this CoinMarketView coinMarkets, string dst)
         => string.Compare(coinMarkets.Id, dst, true) == 0;
 
-    public static IEnumerable<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, string id)
-        => coinMarkets.Select(x => x with { CurrentPrice = GetIdValue(x, id) });
+    public static List<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, string id)
+        => coinMarkets.Select(x => x with { CurrentPrice = GetIdValue(x, id) }).ToList();
 
     public static decimal ExChange(this CoinMarketView coinMarket, string srcCurrency, string dstCurrency)
         => GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency);
@@ -211,11 +211,25 @@ public static class CoinMarketViewExtention
     }
 
     private static decimal GetInputPrice(CoinMarketView coinMarketView, CoinMarketView current, decimal inputNumber)
-        => current.IsLegal
-            ? Round(inputNumber / coinMarketView.CurrentPrice)
-            : coinMarketView.IsLegal
-                ? Round(inputNumber * current.CurrentPrice)
-                : Round(inputNumber * current.CurrentPrice / coinMarketView.CurrentPrice);
+    {
+        var coinMarketViewCurrentPrice = coinMarketView.CurrentPrice == 0 ? 1 : coinMarketView.CurrentPrice;
+        var currentCurrentPrice = current.CurrentPrice == 0 ? 1 : current.CurrentPrice;
+        if (current.IsLegal)
+        {
+            return Round(inputNumber / coinMarketViewCurrentPrice);
+        }
+        else
+        {
+            if (coinMarketView.IsLegal)
+            {
+                return Round(inputNumber * currentCurrentPrice);
+            }
+            else 
+            {
+                return Round(inputNumber * currentCurrentPrice / coinMarketViewCurrentPrice);
+            }
+        }
+    }
 
     private static decimal Round(decimal price)
         => Math.Round(price, 8);

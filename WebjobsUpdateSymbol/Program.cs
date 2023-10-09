@@ -1,6 +1,4 @@
-﻿using Dapper;
-using KryptoCalc.Shared;
-using Microsoft.Azure.Cosmos;
+﻿using KryptoCalc.Shared;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using System.Text;
@@ -42,16 +40,17 @@ string GetErrorMessage<T>(T data, Exception ex)
 
 async Task Run()
 {
-    var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient);
+    var coinMarketList = await CoinGeckoUtil.GetCoinMarketListAsync(httpClient); 
     var priceList = await CoinGeckoUtil.GetPriceListAsync(httpClient, 
         coinMarketList.Where(x => x.MarketCapRank != 0).Select(x => x.Id).ToList());
 
-    using (var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromHours(2)))
+    using (var transaction = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted, Timeout = TimeSpan.FromHours(2) }))
     {
         using var sqlConnection = new SqlConnection(connectionString);
         sqlConnection.Open();
         var exceptionList = new List<string>();
         int co = 1;
+        sqlConnection.Truncate<CoinMarkets>();
         foreach (var coinMarket in coinMarketList)
         {
             try
@@ -84,7 +83,8 @@ async Task Run()
             Thread.Sleep(1);
         }
 
-        sqlConnection.Query($"Truncate table {typeof(CoinMarketView).Name};");
+        co = 1;
+        sqlConnection.Truncate<CoinMarketView>();
         var coinMarketRankingList = coinMarketList.Where(x => x.MarketCapRank != 0).OrderBy(x => x.MarketCapRank).ToList();
         foreach (var coinMarketRanking in coinMarketRankingList)
         {
@@ -158,7 +158,7 @@ async Task Run()
                 if (exceptionList.Any() && exceptionList[^1] == ex.Message) throw;
                 exceptionList.Add(ex.Message);
             }
-            Console.WriteLine($"Price:{co++}/{coinMarketRankingList.Count}:{coinMarketRanking.Id}");
+            Console.WriteLine($"CoinMarketView:{co++}/{coinMarketRankingList.Count}:{coinMarketRanking.Id}");
             Thread.Sleep(1);
         }
 
