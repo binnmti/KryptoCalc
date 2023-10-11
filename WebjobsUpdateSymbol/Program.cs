@@ -88,7 +88,9 @@ async Task Run()
         var coinMarketRankingList = coinMarketList.Where(x => x.MarketCapRank != 0).OrderBy(x => x.MarketCapRank).ToList();
         foreach (var coinMarketRanking in coinMarketRankingList)
         {
-            var price = priceList.Single(y => y.CoinMarketsId == coinMarketRanking.Id);
+            var price = priceList.FirstOrDefault(p => p.CoinMarketsId == coinMarketRanking.Id);
+            if (price == null) continue;
+
             var coinMarketView = new CoinMarketView(
             coinMarketRanking.Id,
             coinMarketRanking.Symbol.ToUpper(),
@@ -150,7 +152,7 @@ async Task Run()
 
             try
             {
-                sqlConnection.Insert(coinMarketView);
+                sqlConnection.InsertOrUpdate(coinMarketView, coinMarketView.Id);
             }
             catch (Exception ex)
             {
@@ -165,7 +167,8 @@ async Task Run()
         transaction.Complete();
         if (exceptionList.Any())
         {
-            throw new Exception("Exception!!");
+            var message = string.Concat(exceptionList.Select(x => x + Environment.NewLine));
+            throw new Exception(message);
         }
     }
 

@@ -165,7 +165,7 @@ internal static class CoinGeckoUtil
             Console.WriteLine($"simple/price/page={page++}&count={priceList.Count}");
             Thread.Sleep(1000 * 60);
         }
-        return priceList;
+        return priceList.Distinct().ToList();
     }
 
     //Must be between 1/1/1753 12:00:00 AM and 12/31/9999 11:59:59 PM.
@@ -216,7 +216,7 @@ internal static class CoinGeckoUtil
             page++;
             Thread.Sleep(1000 * 60);
         }
-        return coinMarkets;
+        return coinMarkets.Distinct().ToList();
     }
 
     private static float GetValue(float? value)
