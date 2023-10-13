@@ -22,7 +22,6 @@ public class CoinsController : ControllerBase
         var skip = (Math.Max(page, 1) - 1) * count;
         var take = count == -1 ? int.MaxValue : count;
         return _context.CoinMarketView.OrderBy(x => x.MarketCapRank).Skip(skip).Take(take);
-        //return GetCoinMarkets(skip, take);
     }
 
     [Route("/coinMarketsCount")]
