@@ -88,9 +88,7 @@ async Task Run()
         var coinMarketRankingList = coinMarketList.Where(x => x.MarketCapRank != 0).OrderBy(x => x.MarketCapRank).ToList();
         foreach (var coinMarketRanking in coinMarketRankingList)
         {
-            var price = priceList.FirstOrDefault(p => p.CoinMarketsId == coinMarketRanking.Id);
-            if (price == null) continue;
-
+            var price = priceList.First(p => p.CoinMarketsId == coinMarketRanking.Id);
             var coinMarketView = new CoinMarketView(
             coinMarketRanking.Id,
             coinMarketRanking.Symbol.ToUpper(),
@@ -99,6 +97,7 @@ async Task Run()
             0,
             0,
             false,
+            coinMarketRanking.MarketCapRank,
             price.Usd,
             price.Aed,
             price.Ars,

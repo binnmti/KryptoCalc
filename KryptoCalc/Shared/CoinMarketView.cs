@@ -24,6 +24,7 @@ public record CoinMarketView
                           decimal currentPrice,
                           decimal inputPrice,
                           bool isLegal,
+                          int marketCapRank,
                           decimal usd,
                           decimal aed,
                           decimal ars,
@@ -76,6 +77,7 @@ public record CoinMarketView
                           decimal sat)
         : this(id, symbol, name, image, currentPrice, inputPrice, isLegal)
     {
+        MarketCapRank = marketCapRank;
         Usd = usd;
         Aed = aed;
         Ars = ars;
@@ -135,6 +137,7 @@ public record CoinMarketView
     public decimal CurrentPrice { get; set; }
     public decimal InputPrice { get; set; }
     public bool IsLegal { get; set; }
+    public int MarketCapRank { get; set; }
     public decimal Usd { get; set; }
     public decimal Aed { get; set; }
     public decimal Ars { get; set; }
