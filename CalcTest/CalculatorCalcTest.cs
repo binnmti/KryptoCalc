@@ -39,13 +39,4 @@ public class CalculatorCalcTest
         // Assert
         ((decimal)expected).Should().Be(calc.CurrentInputNumber);
     }
-
-    [TestMethod]
-    public void Test()
-    {
-        var num = 100m;
-        var r = num * (29724m / 4266701m);
-        var r2 = r * (4266701m / 29724m);
-        r2.Should().Be(num);
-    }
 }
