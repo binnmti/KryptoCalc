@@ -233,7 +233,6 @@
         DisplayType.Value = displayType;
         await cookie.SetValue("DisplayType", DisplayType.Value);
         SetCoinMarketViewAndPager();
-        CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
         StateHasChanged();
     }
 
@@ -262,6 +261,7 @@
         var coinMarketView = AllCoinMarketView.Where(x => x.Id.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
          || x.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) || x.IsLegal);
         CoinMarketView = coinMarketView.Skip(skip).Take(take).ToList();
+        CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
         PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, coinMarketView.Count(), 3, "kryptocalc?");
     }
 
