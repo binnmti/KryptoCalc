@@ -25,27 +25,22 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col text-top">
-                    <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
-                    <span>@CurrentCoinMarketView.Name</span>
-                </div>
-                <div class="col text-end">
-                    @CurrentCoinMarketView.Symbol
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" id="display" class="subTextbox form-control" value="@CurrentLegalCurrency.InputPrice" readonly>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col text-top">
-                    <img src="@CurrentLegalCurrency.Image" class="img-thumbnail" alt="">
-                    <span>@CurrentLegalCurrency.Name</span>
-                </div>
-                <div class="col text-end">
-                    @CurrentLegalCurrency.Symbol
-                </div>
+                @if (CurrentCoinMarketView.Image != "")
+                {
+                    @if (CurrentLegalCurrency.Image != "" && !CurrentCoinMarketView.IsLegal)
+                    {
+                        <div class="col text-top">
+                            <img src="@CurrentLegalCurrency.Image" class="img-thumbnail" alt="">
+                            <span>=</span>
+                            <span>@CurrentLegalCurrency.InputPrice</span>
+                            <span>@CurrentLegalCurrency.Symbol</span>
+                        </div>
+                    }
+                    <div class="col text-end">
+                        <img src="@CurrentCoinMarketView.Image" class="img-thumbnail" alt="">
+                        <span>@CurrentCoinMarketView.Symbol</span>
+                    </div>
+                }
             </div>
             <div class="row">
                 <div class="col">
