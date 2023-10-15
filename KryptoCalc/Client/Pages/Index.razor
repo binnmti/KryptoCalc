@@ -79,7 +79,7 @@
         </div>
         <div class="col-sm-4 col-md-3 col-lg-5 col-xl-4 navbar navbar-expand-sm">
             @{
-                if (CoinMarketView.Any())
+                if (AllCoinMarketView.Any())
                 {
                     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
                         <span class="navbar-toggler-icon"></span>
@@ -99,6 +99,11 @@
                             </select>
                         </div>
                         <div>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" id="display" class="form-control" @oninput="OnChangeSearchText">
+                                </div>
+                            </div>
                         </div>
                         <div class="offcanvas-body">
                             <ul class="list-group">
@@ -199,6 +204,7 @@
     private string _currentSymbol = "";
     private int _pageNumer = 0;
     private int _displayType = 0;
+    private string _searchText = "";
     private readonly int _displayNumber = 10;
     private Calc Calc = new();
     private List<CoinMarketView> LegalCoinMarketViews = new();
@@ -206,8 +212,7 @@
     private List<CoinMarketView> CoinMarketView = new();
     private List<CoinMarketView> AllCoinMarketView = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0, false);
-
-    private PaginatedParameter PaginatedParameter = default!;
+    private PaginatedParameter PaginatedParameter = new PaginatedParameter(1, 0, 0, 0, "");
     private HotKeysContext HotKeysContext = default!;
     private IViewSelect DisplayType = new DisplayType();
 
@@ -231,13 +236,9 @@
         _pageNumer = int.Parse(page);
         _displayType = int.Parse(displayType);
         DisplayType.Value = displayType;
-        var skip = (Math.Max(_pageNumer, 1) - 1) * _displayType;
-        var take = _displayType == -1 ? int.MaxValue : _displayType;
-        CoinMarketView = AllCoinMarketView.Skip(skip).Take(take).ToList();
-        var total = await Http.GetFromJsonAsync<int>($"coinMarketsCount");
         await cookie.SetValue("DisplayType", DisplayType.Value);
+        SetCoinMarketViewAndPager();
         CoinMarketView = CoinMarketView.UpdateCoinMarketViews(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
-        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, total, 3, "kryptocalc?");
         StateHasChanged();
     }
 
@@ -256,6 +257,25 @@
         var page = query["page"]?.ToString() ?? "";
         var count = query["count"]?.ToString() ?? "";
         await ChangeDisplayNumber(page, count);
+        StateHasChanged();
+    }
+
+    void SetCoinMarketViewAndPager()
+    {
+        var skip = (Math.Max(_pageNumer, 1) - 1) * _displayType;
+        var take = _displayType == -1 ? int.MaxValue : _displayType;
+        var coinMarketView = AllCoinMarketView.Where(x => x.Id.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+         || x.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) || x.IsLegal);
+        CoinMarketView = coinMarketView.Skip(skip).Take(take).ToList();
+        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, coinMarketView.Count(), 3, "kryptocalc?");
+    }
+
+    private void OnChangeSearchText(ChangeEventArgs eventArgs)
+    {
+        var value = eventArgs?.Value?.ToString() ?? "";
+        _searchText = value;
+        _pageNumer = 1;
+        SetCoinMarketViewAndPager();
         StateHasChanged();
     }
 
