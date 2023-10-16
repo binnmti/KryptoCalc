@@ -195,15 +195,15 @@ public static class CoinMarketViewExtention
     public static bool CompareId(this CoinMarketView coinMarkets, string dst)
         => string.Compare(coinMarkets.Id, dst, true) == 0;
 
-    public static List<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, string id)
+    public static List<CoinMarketView> UpdateCurrentPrice(this List<CoinMarketView> coinMarkets, string id)
         => coinMarkets.Select(x => x with { CurrentPrice = GetIdValue(x, id) }).ToList();
+
+    //TODO:UnitTest
+    public static IEnumerable<CoinMarketView> UpdateInputPrice(this List<CoinMarketView> coinMarkets, CoinMarketView current, decimal inputNumber)
+        => coinMarkets.Select(x => x with { InputPrice = GetInputPrice(x, current, inputNumber) });
 
     public static decimal ExChange(this CoinMarketView coinMarket, string srcCurrency, string dstCurrency)
         => GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency);
-
-    //TODO:UnitTest
-    public static IEnumerable<CoinMarketView> UpdateCoinMarketViews(this List<CoinMarketView> coinMarkets, CoinMarketView current, decimal inputNumber)
-        => coinMarkets.Select(x => x with { InputPrice = GetInputPrice(x, current, inputNumber) });
 
     private static decimal GetIdValue(CoinMarketView x, string id)
     {
