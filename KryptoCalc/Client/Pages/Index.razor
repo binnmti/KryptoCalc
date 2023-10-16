@@ -250,8 +250,8 @@
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         var query = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
-        var page = query["page"]?.ToString() ?? "";
-        var count = query["count"]?.ToString() ?? "";
+        var page = query["page"]?.ToString() ?? "1";
+        var count = query["count"]?.ToString() ?? "10";
         await ChangeDisplayNumber(page, count);
         StateHasChanged();
     }
