@@ -216,11 +216,11 @@
         CurrentId = await cookie.GetValue("Id") ?? LegalCurrencyCoinMarketViews.First().Id;
         CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(legalCurrency));
         CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
+        CurrentCoinMarketView = CurrentLegalCurrency;
         AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1") ?? new List<CoinMarketView>();
         AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(legalCurrency));
         AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(legalCurrency);
         SetCoinMarketViewAndPager(1);
-        SetNewId(legalCurrency);
         HotKeysContext = GetHotKeysContext();
     }
 
@@ -232,25 +232,24 @@
 
         //1=bitcoinをベースに法定通貨を産出する
         var price = AllCoinMarketView.ElementAt(1).ExChange(CurrentLegalCurrency.Id, newCurrency);
-
-        //CurrentLegalCurrency.InputPrice
-        Calc.Change((CurrentLegalCurrency.InputPrice * price).ToString());
+        Calc.Change(CurrentLegalCurrency.InputPrice * price);
+        CurrentId = newCurrency;
         CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(newCurrency));
         CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
-
+        CurrentCoinMarketView = CurrentLegalCurrency;
         AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
         AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(newCurrency);
         SearchText = "";
         SetCoinMarketViewAndPager(1);
-        SetNewId(newCurrency);
         StateHasChanged();
     }
 
     private async Task OnCoinMarketViewListClick(string id)
     {
         await cookie.SetValue("Id", id);
-        SetNewId(id); 
-        Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
+        CurrentId = id;
+        CurrentCoinMarketView = DisplayCoinMarketView.Single(x => x.CompareId(id));
+        Calc.Change(CurrentCoinMarketView.InputPrice);
         StateHasChanged();
     }
 
@@ -277,12 +276,6 @@
         CurrentCoinMarketView = CurrentCoinMarketView with { InputPrice = Calc.CurrentInputNumber };
         CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
         StateHasChanged();
-    }
-
-    private void SetNewId(string newId)
-    {
-        CurrentId = newId;
-        CurrentCoinMarketView = DisplayCoinMarketView.Single(x => x.CompareId(newId));
     }
 
     private void SetCoinMarketViewAndPager(int page)

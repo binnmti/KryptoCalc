@@ -1,4 +1,7 @@
-﻿namespace KryptoCalc.Shared;
+﻿using System.Diagnostics;
+using System.Text;
+
+namespace KryptoCalc.Shared;
 
 //TODO:入力上限桁がいるかも*で上限簡単にこえるので。。。
 //TODO:割り算の誤差が気になる
@@ -17,11 +20,13 @@ public class Calc
     /// </summary>
     public string InputedNumberAndSymbol { get; private set; } = string.Empty;
 
-    public void Change(string value)
+    public void Change(decimal value)
     {
+        var number = Math.Round(value, 6).ToString();
         InputList.Clear();
-        InputList.Add(value);
+        InputList.Add(number);
         CurrentInputNumber = ToCurrentInputNumber(InputList);
+        InputedNumberAndSymbol = CurrentInputNumber.ToString();
     }
 
     /// <summary>

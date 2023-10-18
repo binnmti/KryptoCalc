@@ -203,7 +203,7 @@ public static class CoinMarketViewExtention
         => coinMarkets.Select(x => x with { InputPrice = GetInputPrice(x, current, inputNumber) });
 
     public static decimal ExChange(this CoinMarketView coinMarket, string srcCurrency, string dstCurrency)
-        => GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency);
+        => Round(GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency));
 
     private static decimal GetIdValue(CoinMarketView x, string id)
     {
@@ -238,5 +238,5 @@ public static class CoinMarketViewExtention
     }
 
     private static decimal Round(decimal price)
-        => Math.Round(price, 8);
+        => Math.Round(price, 6);
 }
