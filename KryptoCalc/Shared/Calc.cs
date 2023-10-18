@@ -5,25 +5,43 @@
 
 public class Calc
 {
-    private List<string> InputList { get; set; } = new();
+    //value     入力した文字     数字と記号とそれ以外  1-0+-×÷=.C
+    //number    数字            0-9
+    //symbol    記号            +-×÷=±C
+    //operator  演算子          記号の一部(+-×÷=)
+    //formula   計算式          1+2×
+    private const string PlusSymbol = "+";
+    private const string MinusSymbol = "-";
+    private const string MultiplySymbol = "×";
+    private const string DivideSymbol = "÷";
+    private const string EqualSymbol = "=";
+    private const string ClearSymbol = "C";
+    private const string DeleteSymbol = "☒";
+    private const string PramaiSymbol = "±"; //何処に挿入しても有効なので特殊処理が必要
+
+    //入力文字リスト
+    private List<string> InputValueList { get; set; } = new();
 
     /// <summary>
-    /// 現在入力中の数字
+    /// 現在表示している数字（記号は含まない）
     /// </summary>
-    public decimal CurrentInputNumber { get; set; }
+    public decimal CurrentNumber { get; private set; }
 
     /// <summary>
     /// 入力した計算式
     /// </summary>
-    public string InputedNumberAndSymbol { get; private set; } = string.Empty;
+    public string InputedFormula { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// 変更
+    /// </summary>
+    /// <param name="value"></param>
     public void Change(decimal value)
     {
         var number = Math.Round(value, 6).ToString();
-        InputList.Clear();
-        InputList.Add(number);
-        CurrentInputNumber = ToCurrentInputNumber(InputList);
-        InputedNumberAndSymbol = CurrentInputNumber.ToString();
+        InputValueList.Clear();
+        InputValueList.Add(number);
+        CurrentNumber = ToCurrentNumber(InputValueList);
     }
 
     /// <summary>
@@ -33,106 +51,122 @@ public class Calc
     /// <returns></returns>
     public string Input(string value)
     {
-        //未入力か確定の状態で演算子
-        if (InputList.Count == 0)
+        //未入力か確定の状態
+        if (InputValueList.Count == 0)
         {
-            if (IsOperator(value) || value == "±")
+            //valueが演算子
+            if (IsOperator(value) || value == PramaiSymbol)
             {
-                //現在の数字をそのまま使用
-                foreach (var n in CurrentInputNumber.ToString())
+                //現在の数字をそのまま入力文字リストに追加
+                InputValueList.AddRange(ToStrings(CurrentNumber));
+            }
+        }
+        //入力中
+        else
+        {
+            //valueが2回連続演算子
+            if (IsOperator(InputValueList[^1]) && IsOperator(value))
+            {
+                //1+=という入力は有効
+                if (value != EqualSymbol)
                 {
-                    InputList.Add(n.ToString());
+                    InputValueList.RemoveAt(InputValueList.Count - 1);
                 }
             }
         }
-        //連続演算子
-        if (InputList.Count > 1 && IsOperator(InputList[^1]) && IsOperator(value))
+
+        if (IsEqualIgnoreCase(value, ClearSymbol))
         {
-            //3+=は有効
-            if (value != "=")
-            {
-                InputList.RemoveAt(InputList.Count - 1);
-            }
+            InputValueList.Clear();
         }
-        if (string.Compare(value, "C", true) == 0)
+        else if (IsEqualIgnoreCase(value, DeleteSymbol))
         {
-            InputList.Clear();
-        }
-        else if (string.Compare(value, "☒", true) == 0)
-        {
-            if (InputList.Count != 0)
-            {
-                InputList.RemoveAt(InputList.Count - 1);
-            }
-            else
-            {
-                return CurrentInputNumber.ToString();
-            }
+            InputValueList.RemoveAt(InputValueList.Count - 1);
         }
         else
         {
-            InputList.Add(value);
+            InputValueList.Add(value);
         }
 
-        CurrentInputNumber = ToCurrentInputNumber(InputList);
-        if(value == "=")
+        CurrentNumber = ToCurrentNumber(InputValueList);
+        if(value == EqualSymbol)
         {
-            InputList.Clear();
+            InputValueList.Clear();
         }
-        return CurrentInputNumber.ToString();
+        return CurrentNumber.ToString();
     }
 
-    private decimal ToCurrentInputNumber(IEnumerable<string> inputList)
+    private decimal ToCurrentNumber(IEnumerable<string> inputList)
     {
-        var calcItem = new List<Tuple<decimal, string>>();
-        var inputProcess = "";
+        var calcItem = new List<(decimal, string)>();
+        var numberAndPramai = "";
         var numberPreOperator = 0m;
         foreach (var input in inputList)
         {
             if (IsOperator(input))
             {
-                var ope = input;
                 //演算子の前に入力された数字
-                if (inputProcess != "")
+                if (numberAndPramai != "")
                 {
-                    numberPreOperator = ToNumber(inputProcess);
+                    numberPreOperator = ToNumber(numberAndPramai);
                 }
-                calcItem.Add(Tuple.Create(numberPreOperator, ope));
-                inputProcess = "";
+                calcItem.Add((numberPreOperator, input));
+                numberAndPramai = "";
                 continue;
             }
-            inputProcess += input;
+            numberAndPramai += input;
         }
-        //processが""なら演算子なので計算結果、そうでなければ数字を返す
-        InputedNumberAndSymbol = string.Concat(calcItem.Select(x => x.Item1 + x.Item2)) + (inputProcess == "" ? "" : ToNumber(inputProcess));
-        return inputProcess == "" ? Calculator(calcItem) : ToNumber(inputProcess);
+        InputedFormula = ToString(calcItem, numberAndPramai);
+        return IsEmpty(numberAndPramai) ? Calculator(calcItem) : ToNumber(numberAndPramai);
     }
 
-    private static decimal ToNumber(string process)
-        => decimal.Parse(process.Replace("±", "")) * PlusMinus(process, '±');
-
-    private static int PlusMinus(string s, char c)
-        => (s.Length - s.Replace(c.ToString(), "").Length) % 2 == 0 ? 1 : -1;
-
-    private static decimal Calculator(List<Tuple<decimal, string>> calcItem)
+    private static string ToString(List<(decimal, string)> calcItem, string numberAndPramai)
     {
-        string preOpe = "";
+        var numberAndSymbol = string.Concat(calcItem.Select(x => x.Item1 + x.Item2));
+        var lastNumber = IsEmpty(numberAndPramai) ? "" : ToNumber(numberAndPramai).ToString();
+        return numberAndSymbol + lastNumber;
+    }
+
+    private static decimal Calculator(List<(decimal, string)> calcItem)
+    {
+        string preOperator = "";
         decimal result = 0;
         foreach (var (num, ope) in calcItem)
         {
-            result = preOpe switch
+            result = preOperator switch
             {
-                "+" => result + num,
-                "-" => result - num,
-                "×" => result * num,
-                "÷" => result / num,
+                PlusSymbol => result + num,
+                MinusSymbol => result - num,
+                MultiplySymbol => result * num,
+                DivideSymbol => result / num,
                 _ => result + num,
             };
-            preOpe = ope;
+            preOperator = ope;
         }
         return result;
     }
 
-    private static bool IsOperator(string str)
-        => str == "+" || str == "-" || str == "÷" || str == "×" || str == "=";
+    //数字を一文字ずつのstringにして返す
+    private static IEnumerable<string> ToStrings(decimal currentNumber)
+        => currentNumber.ToString().Select(x => x.ToString());
+
+    private static bool IsEmpty(string numberAndPramai) => numberAndPramai == "";
+
+    //入力文字の±から1か-1をかけて±を消す
+    private static decimal ToNumber(string numberAndPramai)
+        => decimal.Parse(numberAndPramai.Replace(PramaiSymbol, "")) * Pramai(numberAndPramai);
+
+    //入力文字の±の数を数えて偶数なら1奇数なら-1を返す
+    private static int Pramai(string numberAndPramai)
+        => numberAndPramai.Count(s => s.ToString() == PramaiSymbol) % 2 == 0 ? 1 : -1;
+
+    private static bool IsEqualIgnoreCase(string src, string dst)
+        => string.Compare(src, dst, true) == 0;
+
+    private static bool IsOperator(string value)
+        => value == PlusSymbol
+        || value == MinusSymbol
+        || value == MultiplySymbol
+        || value == DivideSymbol
+        || value == EqualSymbol;
 }

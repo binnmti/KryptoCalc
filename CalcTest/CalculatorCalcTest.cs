@@ -37,6 +37,6 @@ public class CalculatorCalcTest
         }
 
         // Assert
-        ((decimal)expected).Should().Be(calc.CurrentInputNumber);
+        ((decimal)expected).Should().Be(calc.CurrentNumber);
     }
 }
