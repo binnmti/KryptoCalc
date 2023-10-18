@@ -216,16 +216,44 @@
         var legalCurrency = await cookie.GetValue("LegalCurrency") ?? LegalCurrencyCoinMarketViews.First().Id;
         CurrentId = await cookie.GetValue("Id") ?? LegalCurrencyCoinMarketViews.First().Id;
         CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(legalCurrency));
+        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
 
         AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1") ?? new List<CoinMarketView>();
         AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(legalCurrency));
         AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(legalCurrency);
 
         SetCoinMarketViewAndPager(1);
-        await SetNewIdAsync(legalCurrency);
-        await SetNewCurrencyAsync(legalCurrency);
 
+        SetNewId(legalCurrency);
         HotKeysContext = GetHotKeysContext();
+    }
+
+    private async void OnChangeCurrency(ChangeEventArgs eventArgs)
+    {
+        var newCurrency = eventArgs?.Value?.ToString() ?? "";
+        await cookie.SetValue("LegalCurrency", newCurrency);
+        await cookie.SetValue("Id", newCurrency);
+
+        //1=bitcoinをベースに法定通貨を産出する
+        var price = AllCoinMarketView.ElementAt(1).ExChange(CurrentLegalCurrency.Id, newCurrency);
+        Calc.Change((CurrentCoinMarketView.InputPrice * price).ToString());
+        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(newCurrency));
+        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
+
+        AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
+        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(newCurrency);
+        //TODO:SearchTextとPageをそのままで変更は出来ないのかな？
+        SearchText = "";
+        SetCoinMarketViewAndPager(1);
+        SetNewId(newCurrency);
+        StateHasChanged();
+    }
+
+    private async void OnCoinMarketViewListClick(string id)
+    {
+        await cookie.SetValue("Id", id);
+        SetNewId(id);
+        StateHasChanged();
     }
 
     //URLの変更など
@@ -244,27 +272,6 @@
         StateHasChanged();
     }
 
-    private async void OnChangeCurrency(ChangeEventArgs eventArgs)
-    {
-        var newCurrency = eventArgs?.Value?.ToString() ?? "";
-        SearchText = "";
-
-        //1=bitcoinをベースに法定通貨を産出する
-        var price = AllCoinMarketView.ElementAt(1).ExChange(CurrentLegalCurrency.Id, newCurrency);
-        Calc.Change((CurrentCoinMarketView.InputPrice * price).ToString());
-        await SetNewCurrencyAsync(newCurrency);
-        AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
-        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(newCurrency);
-        SetCoinMarketViewAndPager(1);
-        await SetNewIdAsync(newCurrency);
-        StateHasChanged();
-    }
-
-    private async void OnCoinMarketViewListClick(string id)
-    {
-        await SetNewIdAsync(id);
-    }
-
     private void OnCalcButtonClick(string str)
     {
         Calc.Input(str);
@@ -274,21 +281,10 @@
         StateHasChanged();
     }
 
-    private async Task SetNewIdAsync(string newId)
+    private void SetNewId(string newId)
     {
         CurrentId = newId;
         CurrentCoinMarketView = DisplayCoinMarketView.Single(x => x.CompareId(newId));
-        Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
-        
-        //TODO:法定通貨の更新だが、ここでやるのは違和感。。
-        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
-        await cookie.SetValue("Id", CurrentId);
-    }
-
-    private async Task SetNewCurrencyAsync(string newCurrency)
-    {
-        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(newCurrency));
-        await cookie.SetValue("LegalCurrency", newCurrency);
     }
 
     private void SetCoinMarketViewAndPager(int page)
