@@ -213,14 +213,10 @@
         //TODO:ToCoinMarketViewsの引数に選択した言語をいれるようにする。今は日本語固定
         LegalCurrencyCoinMarketViews = LegalCurrency.ToCoinMarketViews("").ToList();
         var legalCurrency = await cookie.GetValue("LegalCurrency") ?? LegalCurrencyCoinMarketViews.First().Id;
-        CurrentId = await cookie.GetValue("Id") ?? LegalCurrencyCoinMarketViews.First().Id;
-        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(legalCurrency));
-        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
-        CurrentCoinMarketView = CurrentLegalCurrency;
+        
         AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1") ?? new List<CoinMarketView>();
         AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(legalCurrency));
-        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(legalCurrency);
-        SetCoinMarketViewAndPager(1);
+        SetLegalCurrency(legalCurrency);
         HotKeysContext = GetHotKeysContext();
     }
 
@@ -233,14 +229,8 @@
         //1=bitcoinをベースに法定通貨を産出する
         var price = AllCoinMarketView.ElementAt(1).ExChange(CurrentLegalCurrency.Id, newCurrency);
         Calc.Change(CurrentLegalCurrency.InputPrice * price);
-        CurrentId = newCurrency;
-        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(newCurrency));
-        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
-        CurrentCoinMarketView = CurrentLegalCurrency;
         AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
-        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(newCurrency);
-        SearchText = "";
-        SetCoinMarketViewAndPager(1);
+        SetLegalCurrency(newCurrency);
         StateHasChanged();
     }
 
@@ -278,6 +268,17 @@
         StateHasChanged();
     }
 
+    private void SetLegalCurrency(string legalCurrency)
+    {
+        CurrentId = legalCurrency;
+        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(legalCurrency));
+        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = Calc.CurrentInputNumber };
+        CurrentCoinMarketView = CurrentLegalCurrency;
+        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(legalCurrency);
+        SearchText = "";
+        SetCoinMarketViewAndPager(1);
+    }
+
     private void SetCoinMarketViewAndPager(int page)
     {
         var skip = (Math.Max(page, 1) - 1) * DisplayNumber;
@@ -286,7 +287,7 @@
          || x.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         DisplayCoinMarketView = coinMarketView.Skip(skip).Take(take).ToList();
         DisplayCoinMarketView = DisplayCoinMarketView.UpdateInputPrice(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
-        PaginatedParameter = new PaginatedParameter(page, DisplayNumber, AllCoinMarketView.Count, 3, "kryptocalc?");
+        PaginatedParameter = new PaginatedParameter(page, DisplayNumber, coinMarketView.Count(), 3, "kryptocalc?");
     }
 
     private HotKeysContext GetHotKeysContext()
