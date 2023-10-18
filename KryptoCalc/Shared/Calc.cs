@@ -17,11 +17,13 @@ public class Calc
     /// </summary>
     public string InputedNumberAndSymbol { get; private set; } = string.Empty;
 
-    public void Change(string value)
+    public void Change(decimal value)
     {
+        var number = Math.Round(value, 6).ToString();
         InputList.Clear();
-        InputList.Add(value);
+        InputList.Add(number);
         CurrentInputNumber = ToCurrentInputNumber(InputList);
+        InputedNumberAndSymbol = CurrentInputNumber.ToString();
     }
 
     /// <summary>

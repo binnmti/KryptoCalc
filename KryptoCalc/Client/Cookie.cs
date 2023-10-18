@@ -5,7 +5,7 @@ namespace KryptoCalc.Client;
 public interface ICookie
 {
     public Task SetValue(string key, string value, int? days = null);
-    public Task<string> GetValue(string key, string def = "");
+    public Task<string?> GetValue(string key);
 }
 
 public class Cookie : ICookie
@@ -25,17 +25,17 @@ public class Cookie : ICookie
         await SetCookie($"{key}={value}; expires={curExp}; path=/");
     }
 
-    public async Task<string> GetValue(string key, string def = "")
+    public async Task<string?> GetValue(string key)
     {
         var cValue = await GetCookie();
-        if (string.IsNullOrEmpty(cValue)) return def;
+        if (string.IsNullOrEmpty(cValue)) return null;
 
         var vals = cValue.Split(';');
         foreach (var val in vals)
             if (!string.IsNullOrEmpty(val) && val.IndexOf('=') > 0)
                 if (val[..val.IndexOf('=')].Trim().Equals(key, StringComparison.OrdinalIgnoreCase))
                     return val[(val.IndexOf('=') + 1)..];
-        return def;
+        return null;
     }
 
     private async Task SetCookie(string value)

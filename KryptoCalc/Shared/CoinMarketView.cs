@@ -203,10 +203,13 @@ public static class CoinMarketViewExtention
         => coinMarkets.Select(x => x with { InputPrice = GetInputPrice(x, current, inputNumber) });
 
     public static decimal ExChange(this CoinMarketView coinMarket, string srcCurrency, string dstCurrency)
-        => GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency);
+        => Round(GetIdValue(coinMarket, dstCurrency) / GetIdValue(coinMarket, srcCurrency));
 
     private static decimal GetIdValue(CoinMarketView x, string id)
     {
+        //TODO:この方法はイマイチかな。。
+        id = id.Replace(LegalCurrency.PrefixId, "");
+
         //先頭を大文字、それ以降を小文字にする
         var idc = string.Concat(id.Select((x, idx) => idx == 0 ? char.ToUpper(x) : char.ToLower(x)));
         var value = (decimal?)(typeof(CoinMarketView).GetProperty(idc)?.GetValue(x)) ?? 1m;
@@ -235,5 +238,5 @@ public static class CoinMarketViewExtention
     }
 
     private static decimal Round(decimal price)
-        => Math.Round(price, 8);
+        => Math.Round(price, 6);
 }
