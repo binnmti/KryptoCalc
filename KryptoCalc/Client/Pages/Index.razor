@@ -213,7 +213,7 @@
         //TODO:ToCoinMarketViewsの引数に選択した言語をいれるようにする。今は日本語固定
         LegalCurrencyCoinMarketViews = LegalCurrency.ToCoinMarketViews("").ToList();
         var legalCurrency = await cookie.GetValue("LegalCurrency") ?? LegalCurrencyCoinMarketViews.First().Id;
-        
+
         AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1") ?? new List<CoinMarketView>();
         AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(legalCurrency));
         SetLegalCurrency(legalCurrency);
@@ -264,7 +264,10 @@
         Calc.Input(str);
         DisplayCoinMarketView = DisplayCoinMarketView.UpdateInputPrice(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
         CurrentCoinMarketView = CurrentCoinMarketView with { InputPrice = Calc.CurrentInputNumber };
-        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
+        var price = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber;
+        //TODO:0と打った時に0.00と出たのでとりあえず居れたけれど、10.00とかもあるのでもっと根本的に考える。一旦目立つので。。。
+        price = (price == 0) ? 0 : price;
+        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = price };
         StateHasChanged();
     }
 
