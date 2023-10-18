@@ -2,8 +2,8 @@
 
 public static class LegalCurrency
 {
-    public static IEnumerable<CoinMarketView> GetCoinMarketViews(string country)
-    => Currencys.Select(x => ToCoinMarketView(country, x));
+    public static IEnumerable<CoinMarketView> ToCoinMarketViews(string language)
+        => Currencys.Select(x => ToCoinMarketView(language, x));
 
     public static CoinMarketView GetCoinMarketView(string id)
         => ToCoinMarketView("", Currencys.Single(x => string.Compare(x.Id, id, true) == 0));
@@ -70,10 +70,11 @@ public static class LegalCurrency
          //new RegionCurrency("EUR", "Euro", "", "", "ユーロ"),
     };
 
-    private static CoinMarketView ToCoinMarketView(string country, Currency currency)
+    //TODO:languageは外から引数でわたってくる。この管理では多分NG。リソース化する必要がある。
+    private static CoinMarketView ToCoinMarketView(string language, Currency currency)
         => new(currency.Id,
-                country == "" ? currency.JapanSymbol : currency.Symbol,
-                country == "" ? currency.JapanCountryName : currency.CountryName,
+                language == "" ? currency.JapanSymbol : currency.Symbol,
+                language == "" ? currency.JapanCountryName : currency.CountryName,
                 $"img/{currency.Id}.png",
                 1, 0, true);
 }

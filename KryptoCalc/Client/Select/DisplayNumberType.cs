@@ -1,6 +1,6 @@
 ﻿namespace KryptoCalc.Client.Select;
 
-public class DisplayType : IViewSelect
+public class DisplayNumberType : IViewSelect
 {
     public string Id => "DisplayType";
     public string Value { get; set; } = "";

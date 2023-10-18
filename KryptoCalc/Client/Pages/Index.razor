@@ -88,7 +88,7 @@
                                 <div class="row">
                                     <select id="@CurrentLegalCurrency.Id" class="form-control form-control-sm" @onchange="@OnChangeCurrency">
                                         @{
-                                            foreach (var coinMarketView in LegalCoinMarketViews)
+                                            foreach (var coinMarketView in LegalCurrencyCoinMarketViews)
                                             {
                                                 <option value=@(coinMarketView.Id) selected="@(CurrentLegalCurrency.Id == coinMarketView.Id)">@coinMarketView.Name</option>
                                             }
@@ -131,12 +131,12 @@
                                 <div class="row">
                                     <ul class="list-group">
                                         @{
-                                            foreach (var coinMarketView in CoinMarketView)
+                                            foreach (var coinMarketView in DisplayCoinMarketView)
                                             {
-                                                var active = coinMarketView.Id == _currentSymbol ? "list-group-item-primary" : "";
-                                                <li class="list-group-item list-group-item-action rounded @active" @onclick="@(s => OnListClick(@coinMarketView.Id))">
+                                                var active = coinMarketView.Id == _currentId ? "list-group-item-primary" : "";
+                                                <li class="list-group-item list-group-item-action rounded @active" @onclick="@(s => OnCoinMarketViewListClick(@coinMarketView.Id))">
                                                     @{
-                                                        if (DisplayType.Value == "1")
+                                                        if (DisplayNumberType.Value == "1")
                                                         {
                                                             <div class="row">
                                                                 <div class="col text-truncate">
@@ -198,45 +198,28 @@
 </div>
 
 @code {
-    private string _currentSymbol = "";
+    //法定通貨 CurrentLegal
+    //法定通貨と仮想通貨の選択名 Symbol(Idで良い気がしてきている)
+
+    private string _currentId = "";
     private int _pageNumer = 0;
     private int _displayType = 0;
     private string _searchText = "";
     private readonly int _displayNumber = 10;
     private Calc Calc = new();
-    private List<CoinMarketView> LegalCoinMarketViews = new();
+
+    //法定通貨のリスト
+    private List<CoinMarketView> LegalCurrencyCoinMarketViews { get; set; } = new();
+    //現在の法定通貨
     private CoinMarketView CurrentLegalCurrency = new("", "", "", "", 0, 0, false);
-    private List<CoinMarketView> CoinMarketView = new();
+
     private List<CoinMarketView> AllCoinMarketView = new();
+    private List<CoinMarketView> DisplayCoinMarketView = new();
     private CoinMarketView CurrentCoinMarketView = new("", "", "", "", 0, 0, false);
+
     private PaginatedParameter PaginatedParameter = new PaginatedParameter(1, 0, 0, 0, "");
     private HotKeysContext HotKeysContext = default!;
-    private IViewSelect DisplayType = new DisplayType();
-
-    private async Task SetNewSymbolAsync(string newSymbol)
-    {
-        _currentSymbol = newSymbol;
-        CurrentCoinMarketView = CoinMarketView.Single(x => x.CompareId(newSymbol));
-        Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
-        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
-        await cookie.SetValue("symbol", _currentSymbol);
-    }
-
-    private async Task SetNewCurrencyAsync(string newCurrency)
-    {
-        CurrentLegalCurrency = LegalCoinMarketViews.Single(x => x.CompareId(newCurrency));
-        await cookie.SetValue("currency", newCurrency);
-    }
-
-    private async Task ChangeDisplayNumber(string page, string displayType)
-    {
-        _pageNumer = int.Parse(page);
-        _displayType = int.Parse(displayType);
-        DisplayType.Value = displayType;
-        await cookie.SetValue("DisplayType", DisplayType.Value);
-        SetCoinMarketViewAndPager();
-        StateHasChanged();
-    }
+    private IViewSelect DisplayNumberType = new DisplayNumberType();
 
     public void Dispose()
         => HotKeysContext.Dispose();
@@ -247,6 +230,34 @@
     void IDisposable.Dispose()
         => NavigationManager.LocationChanged -= OnLocationChanged;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        await JS.InvokeVoidAsync("blazorInit");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //TODO:ToCoinMarketViewsの引数に選択した言語をいれるようにする。今は日本語固定
+        LegalCurrencyCoinMarketViews = LegalCurrency.ToCoinMarketViews("").ToList();
+
+        var legalCurrency = await cookie.GetValue("LegalCurrency") ?? LegalCurrencyCoinMarketViews.First().Id;
+        //TODO:画面表示数だけどTypeは如何なものか。。
+        var displayType = await cookie.GetValue("DisplayNumber") ?? DisplayNumberType.Default;
+        _currentId = await cookie.GetValue("Id") ?? LegalCurrencyCoinMarketViews.First().Id;
+        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(legalCurrency));
+
+        AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1") ?? new List<CoinMarketView>();
+        AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(legalCurrency));
+        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(legalCurrency);
+
+        await ChangeDisplayNumber("1", displayType);
+        await SetNewIdAsync(legalCurrency);
+        await SetNewCurrencyAsync(legalCurrency);
+
+        HotKeysContext = GetHotKeysContext();
+    }
+
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         var query = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
@@ -254,17 +265,6 @@
         var count = query["count"]?.ToString() ?? "10";
         await ChangeDisplayNumber(page, count);
         StateHasChanged();
-    }
-
-    void SetCoinMarketViewAndPager()
-    {
-        var skip = (Math.Max(_pageNumer, 1) - 1) * _displayType;
-        var take = _displayType == -1 ? int.MaxValue : _displayType;
-        var coinMarketView = AllCoinMarketView.Where(x => x.Id.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
-         || x.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
-        CoinMarketView = coinMarketView.Skip(skip).Take(take).ToList();
-        CoinMarketView = CoinMarketView.UpdateInputPrice(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
-        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, coinMarketView.Count(), 3, "kryptocalc?");
     }
 
     private void OnChangeSearchText(ChangeEventArgs eventArgs)
@@ -288,9 +288,9 @@
         AllCoinMarketView[0] = LegalCurrency.GetCoinMarketView(newCurrency);
         AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(newCurrency);
         SetCoinMarketViewAndPager();
-        var displayType = await cookie.GetValue("DisplayType");
-        await ChangeDisplayNumber("1", displayType);
-        await SetNewSymbolAsync(newCurrency);
+        var displayNumber = await cookie.GetValue("DisplayNumber");
+        await ChangeDisplayNumber("1", displayNumber);
+        await SetNewIdAsync(newCurrency);
         StateHasChanged();
     }
 
@@ -299,54 +299,63 @@
         var newDisplay = eventArgs?.Value?.ToString() ?? "";
         await ChangeDisplayNumber("1", newDisplay);
     }
-    private async void OnListClick(string id)
-    {
-        await SetNewSymbolAsync(id);
-    }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async void OnCoinMarketViewListClick(string id)
     {
-        await base.OnAfterRenderAsync(firstRender);
-        await JS.InvokeVoidAsync("blazorInit");
+        await SetNewIdAsync(id);
     }
 
     private void OnCalcButtonClick(string str)
     {
         Calc.Input(str);
-        CoinMarketView = CoinMarketView.UpdateInputPrice(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
+        DisplayCoinMarketView = DisplayCoinMarketView.UpdateInputPrice(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
         CurrentCoinMarketView = CurrentCoinMarketView with { InputPrice = Calc.CurrentInputNumber };
         CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
         StateHasChanged();
     }
 
-    protected override async Task OnInitializedAsync()
+
+
+    private async Task SetNewIdAsync(string newId)
     {
-        LegalCoinMarketViews = LegalCurrency.GetCoinMarketViews("").ToList();
+        _currentId = newId;
+        CurrentCoinMarketView = DisplayCoinMarketView.Single(x => x.CompareId(newId));
+        Calc.Change(CurrentCoinMarketView.InputPrice.ToString());
+        
+        //TODO:法定通貨の更新だが、ここでやるのは違和感。。
+        CurrentLegalCurrency = CurrentLegalCurrency with { InputPrice = CurrentCoinMarketView.CurrentPrice * Calc.CurrentInputNumber };
+        await cookie.SetValue("Id", _currentId);
+    }
 
-        var currentCurrency = await cookie.GetValue("currency");
-        if (currentCurrency == "")
-        {
-            currentCurrency = LegalCoinMarketViews.First().Id;
-        }
-        _currentSymbol = await cookie.GetValue("symbol");
-        if (_currentSymbol == "")
-        {
-            _currentSymbol = LegalCoinMarketViews.First().Id;
-        }
-        CurrentLegalCurrency = LegalCoinMarketViews.Single(x => x.CompareId(currentCurrency));
+    private async Task SetNewCurrencyAsync(string newCurrency)
+    {
+        CurrentLegalCurrency = LegalCurrencyCoinMarketViews.Single(x => x.CompareId(newCurrency));
+        await cookie.SetValue("LegalCurrency", newCurrency);
+    }
 
-        var displayType = await cookie.GetValue("DisplayType");
-        if (displayType == "") displayType = DisplayType.Default;
+    private async Task ChangeDisplayNumber(string page, string displayType)
+    {
+        _pageNumer = int.Parse(page);
+        _displayType = int.Parse(displayType);
+        DisplayNumberType.Value = displayType;
+        await cookie.SetValue("DisplayNumber", DisplayNumberType.Value);
+        SetCoinMarketViewAndPager();
+        StateHasChanged();
+    }
 
-        AllCoinMarketView = await Http.GetFromJsonAsync<List<CoinMarketView>>($"coinMarkets?page=0&count=-1&id={currentCurrency}") ?? new List<CoinMarketView>();
-        AllCoinMarketView.Insert(0, LegalCurrency.GetCoinMarketView(currentCurrency));
-        AllCoinMarketView = AllCoinMarketView.UpdateCurrentPrice(currentCurrency);
+    private void SetCoinMarketViewAndPager()
+    {
+        var skip = (Math.Max(_pageNumer, 1) - 1) * _displayType;
+        var take = _displayType == -1 ? int.MaxValue : _displayType;
+        var coinMarketView = AllCoinMarketView.Where(x => x.Id.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+         || x.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+        DisplayCoinMarketView = coinMarketView.Skip(skip).Take(take).ToList();
+        DisplayCoinMarketView = DisplayCoinMarketView.UpdateInputPrice(CurrentCoinMarketView, Calc.CurrentInputNumber).ToList();
+        PaginatedParameter = new PaginatedParameter(_pageNumer, _displayNumber, DisplayCoinMarketView.Count(), 3, "kryptocalc?");
+    }
 
-        await ChangeDisplayNumber("1", displayType);
-        await SetNewSymbolAsync(currentCurrency);
-        await SetNewCurrencyAsync(currentCurrency);
-
-        HotKeysContext = HotKeys.CreateContext()
+    private HotKeysContext GetHotKeysContext()
+        => HotKeys.CreateContext()
         .Add(Key.Num0, () => OnCalcButtonClick("0"))
         .Add(Key.Num1, () => OnCalcButtonClick("1"))
         .Add(Key.Num2, () => OnCalcButtonClick("2"))
@@ -365,7 +374,6 @@
         .Add(Key.Equal, () => OnCalcButtonClick("="))
         .Add(Key.Period, () => OnCalcButtonClick("."))
         .Add(Key.Delete, () => OnCalcButtonClick("☒"));
-    }
 }
 
 
