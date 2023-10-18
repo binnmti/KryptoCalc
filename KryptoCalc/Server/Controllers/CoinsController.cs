@@ -2,45 +2,29 @@
 using Microsoft.EntityFrameworkCore;
 using KryptoCalc.Server.Data;
 using KryptoCalc.Shared;
-using System.Linq;
 
-namespace KryptoCalc.Server.Controllers
+namespace KryptoCalc.Server.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class CoinsController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class CoinsController : ControllerBase
+    private readonly KryptoCalcServerContext _context;
+
+    public CoinsController(KryptoCalcServerContext context)
     {
-        private readonly KryptoCalcServerContext _context;
-
-        public CoinsController(KryptoCalcServerContext context)
-        {
-            _context = context;
-        }
-
-        [Route("/coinMarkets")]
-        public async Task<IEnumerable<CoinMarkets>> CoinMarkets(int page, int count)
-        {
-            var coinMarkets = new List<CoinMarkets>();
-            //TODO:右上には1yen だけでなく入力値も出す
-            if (page == 1)
-            {
-                coinMarkets.Add(new CoinMarkets("yen", "yen", "Japan", "Japan.png", 1));
-            }
-            page = Math.Max(page, 1);
-            var start = (page - 1) * count;
-            if(count == -1)
-            {
-                coinMarkets.AddRange(_context.CoinMarkets.OrderBy(x => x.MarketCapRank).AsTracking());
-            }
-            else
-            {
-                coinMarkets.AddRange(_context.CoinMarkets.OrderBy(x => x.MarketCapRank).Skip(start).Take(count).AsTracking());
-            }
-            return coinMarkets;
-        }
-
-        [Route("/coinMarketsCount")]
-        public async Task<int> CoinMarketsCount()
-            => await _context.CoinMarkets.CountAsync();
+        _context = context;
     }
+
+    [Route("/coinMarkets")]
+    public IEnumerable<CoinMarketView> CoinMarkets(int page, int count)
+    {
+        var skip = (Math.Max(page, 1) - 1) * count;
+        var take = count == -1 ? int.MaxValue : count;
+        return _context.CoinMarketView.OrderBy(x => x.MarketCapRank).Skip(skip).Take(take);
+    }
+
+    [Route("/coinMarketsCount")]
+    public async Task<int> CoinMarketsCount()
+        => await _context.CoinMarkets.Where(x => x.MarketCapRank != 0).CountAsync();
 }

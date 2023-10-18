@@ -52,6 +52,190 @@ namespace KryptoCalc.Server.Migrations
                     b.ToTable("Coin");
                 });
 
+            modelBuilder.Entity("KryptoCalc.Shared.CoinMarketView", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Aed")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Ars")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Aud")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Bdt")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Bhd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Bits")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Bmd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Brl")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Cad")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Chf")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Clp")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Cny")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CurrentPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Czk")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Dkk")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Eur")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Gbp")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Hkd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Huf")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Idr")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Ils")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("InputPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Inr")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsLegal")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Jpy")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Krw")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Kwd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Lkr")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MarketCapRank")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Mmk")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Mxn")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Myr")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Ngn")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Nok")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Nzd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Php")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Pkr")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Pln")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Rub")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Sar")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Sat")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Sek")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Sgd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Thb")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Try")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Twd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Uah")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Usd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Vef")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Vnd")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Xag")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Xau")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Xdr")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Zar")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CoinMarketView");
+                });
+
             modelBuilder.Entity("KryptoCalc.Shared.CoinMarkets", b =>
                 {
                     b.Property<string>("Id")
@@ -142,9 +326,11 @@ namespace KryptoCalc.Server.Migrations
 
             modelBuilder.Entity("KryptoCalc.Shared.Price", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Aed")
                         .HasColumnType("decimal(20,4)");
@@ -181,6 +367,11 @@ namespace KryptoCalc.Server.Migrations
 
                     b.Property<decimal>("Cny")
                         .HasColumnType("decimal(20,4)");
+
+                    b.Property<string>("CoinMarketsId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime2");

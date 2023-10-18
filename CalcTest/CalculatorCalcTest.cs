@@ -1,4 +1,6 @@
-﻿namespace KryptoCalc.Shared;
+﻿using FluentAssertions;
+
+namespace KryptoCalc.Shared;
 
 [TestClass]
 public class CalculatorCalcTest
@@ -35,6 +37,6 @@ public class CalculatorCalcTest
         }
 
         // Assert
-        Assert.AreEqual((decimal)expected, calc.CurrentNumber);
+        ((decimal)expected).Should().Be(calc.CurrentNumber);
     }
 }

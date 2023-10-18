@@ -6,8 +6,9 @@ namespace KryptoCalc.Shared;
 public record Price
 {
     [Key]
+    public required int Id { get; set; }
     [MaxLength(100)]
-    public required string Id { get; set; }
+    public required string CoinMarketsId { get; set; }
     [Column(TypeName = "decimal(20,4)")]
     public decimal Usd { get; set; }
     [Column(TypeName = "decimal(20,4)")]

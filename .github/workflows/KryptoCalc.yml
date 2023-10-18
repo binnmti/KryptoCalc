@@ -1,0 +1,61 @@
+name: CI/CD
+on:
+  push:
+    branches:
+    - main
+env:
+  AZURE_WEBAPP_NAME: KryptoCalc
+  AZURE_WEBAPP_PACKAGE_PATH: KryptoCalc\Server\published
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 7.0.x
+  WORKING_DIRECTORY: KryptoCalc\Server
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Restore
+      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+    - name: Build
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Test
+      run: dotnet test KryptoCalc.sln --logger trx --collect:"XPlat Code Coverage"
+    - name: Restore local tools
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    - name: Generate code coverage Markdown report
+      run: reportgenerator -reports:**/coverage.cobertura.xml -targetdir:./coverage -reporttypes:MarkdownSummary
+    - name: Create check run with code coverage Markdown report
+      uses: LouisBrunner/checks-action@v1.6.1
+      if: always()
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: Code coverage
+        conclusion: ${{ job.status }}
+        output: '{"summary":"Code coverage"}'
+        output_text_description_file: coverage/Summary.md
+    - name: Publish
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+    - name: Publish Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: webapp
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v3
+      with:
+        name: webapp
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Deploy to Azure WebApp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.KryptoCalc_1447 }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
