@@ -2,11 +2,14 @@
 
 public static class LegalCurrency
 {
+    //Idをそのまま使うと、仮想通貨と法定通貨のIDが同じものが(USD)あるので変える
+    public static readonly string PrefixId = "legal"; 
+
     public static IEnumerable<CoinMarketView> ToCoinMarketViews(string language)
         => Currencys.Select(x => ToCoinMarketView(language, x));
 
     public static CoinMarketView GetCoinMarketView(string id)
-        => ToCoinMarketView("", Currencys.Single(x => string.Compare(x.Id, id, true) == 0));
+        => ToCoinMarketView("", Currencys.Single(x => string.Compare(PrefixId + x.Id, id, true) == 0));
 
     private record Currency(
         string Id,
@@ -72,7 +75,7 @@ public static class LegalCurrency
 
     //TODO:languageは外から引数でわたってくる。この管理では多分NG。リソース化する必要がある。
     private static CoinMarketView ToCoinMarketView(string language, Currency currency)
-        => new(currency.Id,
+        => new(PrefixId + currency.Id,
                 language == "" ? currency.JapanSymbol : currency.Symbol,
                 language == "" ? currency.JapanCountryName : currency.CountryName,
                 $"img/{currency.Id}.png",

@@ -207,6 +207,9 @@ public static class CoinMarketViewExtention
 
     private static decimal GetIdValue(CoinMarketView x, string id)
     {
+        //TODO:この方法はイマイチかな。。
+        id = id.Replace(LegalCurrency.PrefixId, "");
+
         //先頭を大文字、それ以降を小文字にする
         var idc = string.Concat(id.Select((x, idx) => idx == 0 ? char.ToUpper(x) : char.ToLower(x)));
         var value = (decimal?)(typeof(CoinMarketView).GetProperty(idc)?.GetValue(x)) ?? 1m;
